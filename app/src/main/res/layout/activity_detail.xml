@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/details_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/details_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/oatmeal"
+        android:layout_gravity="center_horizontal"/>
+
+    <TextView
+        android:id="@+id/details_recipe_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/details_recipe_ingredients"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ingredients are:
+        MILK
+        OATS
+        GOATS
+        GROATS
+        STUFF"/>
+
+    <TextView
+        android:id="@+id/details_recipe_instructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Instructions are:
+        LOREM IPSUM BAREM ZAREM
+        BLE
+        BLA
+        BLUH
+        RAWR"/>
+
+</LinearLayout>
