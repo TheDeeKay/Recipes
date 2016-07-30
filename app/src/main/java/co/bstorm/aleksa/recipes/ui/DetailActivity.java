@@ -1,10 +1,11 @@
-package co.bstorm.aleksa.recipes;
+package co.bstorm.aleksa.recipes.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
+import co.bstorm.aleksa.recipes.R;
 import co.bstorm.aleksa.recipes.constants.Constants;
 
 /**
