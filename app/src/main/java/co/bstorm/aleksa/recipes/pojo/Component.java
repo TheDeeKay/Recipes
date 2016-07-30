@@ -4,15 +4,16 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by aleksa on 7/30/16.
+ * TODO
  */
-public class Tag {
+public class Component {
 
     @SerializedName("id")
     private int id;
     @SerializedName("name")
     private String name;
-    @SerializedName("tag_category_id")
-    private String tagCategoryId;
+    @SerializedName("quantity_type")
+    private String quantityType;
 
     public int getId() {
         return id;
@@ -30,11 +31,11 @@ public class Tag {
         this.name = name;
     }
 
-    public String getTagCategoryId() {
-        return tagCategoryId;
+    public String getQuantityType() {
+        return quantityType;
     }
 
-    public void setTagCategoryId(String tagCategoryId) {
-        this.tagCategoryId = tagCategoryId;
+    public void setQuantityType(String quantityType) {
+        this.quantityType = quantityType;
     }
 }

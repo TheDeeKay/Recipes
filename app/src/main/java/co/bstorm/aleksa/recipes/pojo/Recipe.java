@@ -31,7 +31,7 @@ public class Recipe {
     private List<Step> steps = new ArrayList<Step>();
     @SerializedName("tags")
     private List<Tag> tags = new ArrayList<Tag>();
-    @SerializedName("ingredients")
+    @SerializedName("components")
     private List<Ingredient> ingredients = new ArrayList<Ingredient>();
 
     public int getId() {
@@ -120,5 +120,60 @@ public class Recipe {
 
     public void setIngredients(List<Ingredient> ingredients) {
         this.ingredients = ingredients;
+    }
+
+    /**
+     * Created by aleksa on 7/29/16.
+     * TODO
+     */
+    public static class Ingredient {
+
+        @SerializedName("id")
+        private int id;
+        @SerializedName("quantity")
+        private float quantity;
+        @SerializedName("preferred_measure")
+        private String preferredMeasure;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public float getQuantity() {
+            return quantity;
+        }
+
+        public void setQuantity(float quantity) {
+            this.quantity = quantity;
+        }
+
+        public String getPreferredMeasure() {
+            return preferredMeasure;
+        }
+
+        public void setPreferredMeasure(String preferredMeasure) {
+            this.preferredMeasure = preferredMeasure;
+        }
+    }
+
+    /**
+     * Created by aleksa on 7/29/16.
+     * TODO
+     */
+    public static class Tag {
+        @SerializedName("id")
+        private int id;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
     }
 }

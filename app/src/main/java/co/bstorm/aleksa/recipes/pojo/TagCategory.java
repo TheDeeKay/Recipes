@@ -2,17 +2,20 @@ package co.bstorm.aleksa.recipes.pojo;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by aleksa on 7/30/16.
  */
-public class Tag {
+public class TagCategory {
 
     @SerializedName("id")
     private int id;
     @SerializedName("name")
     private String name;
-    @SerializedName("tag_category_id")
-    private String tagCategoryId;
+    @SerializedName("tags")
+    private List<Tag> tags = new ArrayList<>();
 
     public int getId() {
         return id;
@@ -30,11 +33,11 @@ public class Tag {
         this.name = name;
     }
 
-    public String getTagCategoryId() {
-        return tagCategoryId;
+    public List<Tag> getTags() {
+        return tags;
     }
 
-    public void setTagCategoryId(String tagCategoryId) {
-        this.tagCategoryId = tagCategoryId;
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
     }
 }
