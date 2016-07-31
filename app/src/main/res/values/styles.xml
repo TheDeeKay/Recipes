@@ -8,4 +8,21 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- Basic style that makes an image keep its aspect ratio but fill parent's width (and display full image) -->
+    <style name="FillWidthKeepAspectImage">
+        <item name="android:scaleType">fitXY</item>
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+
+    <style name="RecipeListText">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColorHint">@android:color/white</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
 </resources>

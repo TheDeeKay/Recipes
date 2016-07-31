@@ -17,6 +17,8 @@ public class Recipe {
     private String title;
     @SerializedName("image_file_name")
     private String imageUrl;
+    @SerializedName("image_size")
+    private String imageSize;
     @SerializedName("difficulty")
     private int difficulty;
     @SerializedName("default_serving_size")
@@ -31,7 +33,7 @@ public class Recipe {
     private List<Step> steps = new ArrayList<Step>();
     @SerializedName("tags")
     private List<Tag> tags = new ArrayList<Tag>();
-    @SerializedName("components")
+    @SerializedName("ingredients")
     private List<Ingredient> ingredients = new ArrayList<Ingredient>();
 
     public int getId() {
@@ -108,6 +110,22 @@ public class Recipe {
 
     public List<Tag> getTags() {
         return tags;
+    }
+
+    public String getImageSize() {
+        return imageSize;
+    }
+
+    public void setImageSize(String imageSize) {
+        this.imageSize = imageSize;
+    }
+
+    public int getImageWidth(){
+        return Integer.parseInt(imageSize.split("x")[0]);
+    }
+
+    public int getImageHeight(){
+        return Integer.parseInt(imageSize.split("x")[1]);
     }
 
     public void setTags(List<Tag> tags) {

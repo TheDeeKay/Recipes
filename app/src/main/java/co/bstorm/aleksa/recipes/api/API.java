@@ -2,13 +2,19 @@ package co.bstorm.aleksa.recipes.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import co.bstorm.aleksa.recipes.api.retrofit.RecipesApiInterface;
 import co.bstorm.aleksa.recipes.constants.Constants;
 import co.bstorm.aleksa.recipes.gson.MyDeserializer;
+import co.bstorm.aleksa.recipes.pojo.Component;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
+import co.bstorm.aleksa.recipes.pojo.Tag;
+import co.bstorm.aleksa.recipes.pojo.TagCategory;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -20,10 +26,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class API {
 
+    private static Type recipeListType = new TypeToken<ArrayList<Recipe>>(){}.getType();
+    private static Type componentListType = new TypeToken<ArrayList<Component>>(){}.getType();
+    private static Type tagListType = new TypeToken<ArrayList<TagCategory>>(){}.getType();
+
     private static Gson gson = new GsonBuilder()
             .registerTypeAdapter(Recipe.class, new MyDeserializer<Recipe>())
-            .registerTypeAdapter(Recipe.Ingredient.class, new MyDeserializer<Recipe.Ingredient>())
-            .registerTypeAdapter(Recipe.Tag.class, new MyDeserializer<Recipe.Tag>())
+            .registerTypeAdapter(recipeListType, new MyDeserializer<List<Recipe>>())
+            .registerTypeAdapter(Component.class, new MyDeserializer<Component>())
+            .registerTypeAdapter(componentListType, new MyDeserializer<List<Component>>())
+            .registerTypeAdapter(TagCategory.class, new MyDeserializer<TagCategory>())
+            .registerTypeAdapter(tagListType, new MyDeserializer<List<TagCategory>>())
             .create();
 
     private static Retrofit retrofit =
@@ -35,19 +48,19 @@ public class API {
 
     private static RecipesApiInterface recipesInterface = retrofit.create(RecipesApiInterface.class);
 
-    public static Call<List<Recipe>> getAllRecipes(){
+    public static Call<ArrayList<Recipe>> getAllRecipes(){
         return recipesInterface.listAllRecipes();
     }
 
-    public static Call<List<Recipe>> getOffsetRecipes(int offset){
+    public static Call<ArrayList<Recipe>> getOffsetRecipes(int offset){
         return recipesInterface.listOffsetRecipes(offset);
     }
 
-    public static Call<List<Recipe.Ingredient>> getAllIngredients(){
+    public static Call<ArrayList<Component>> getAllIngredients(){
         return recipesInterface.listAllIngredients();
     }
 
-    public static Call<List<Recipe.Tag>> getAllTags(){
+    public static Call<ArrayList<Tag>> getAllTags(){
         return recipesInterface.listAllTags();
     }
 }

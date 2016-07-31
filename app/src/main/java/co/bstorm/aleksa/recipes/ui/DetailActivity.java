@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import co.bstorm.aleksa.recipes.R;
 import co.bstorm.aleksa.recipes.constants.Constants;
+import co.bstorm.aleksa.recipes.dummy.DummyData;
 
 /**
  * Created by aleksa on 7/28/16.
@@ -38,7 +39,10 @@ public class DetailActivity extends AppCompatActivity {
      */
     private void initializeUI(long recipeId){
 
+        // TODO
         TextView recipeName = (TextView) findViewById(R.id.details_recipe_name);
-        recipeName.setText(MainActivity.DUMMY_DATA[(int) recipeId]);
+        recipeName.setText(DummyData.dummyRecipes.get((int) recipeId).getTitle());
+
+
     }
 }

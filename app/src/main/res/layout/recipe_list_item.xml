@@ -1,29 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/list_item_root"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/list_item_image"
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/list_item_image"
+            android:layout_height="match_parent"
+            style="@style/FillWidthKeepAspectImage"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/shadow_gradient"/>
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/list_item_difficulty"
+        style="@style/RecipeListText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/oatmeal"/>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"/>
 
-    <LinearLayout
-        android:id="@+id/list_item_overview_root"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical">
+    <TextView
+        android:id="@+id/list_item_recipe_title"
+        style="@style/RecipeListText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/list_item_difficulty"/>
 
-        <TextView
-            android:id="@+id/list_item_recipe_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/list_item_prep_time"
+        style="@style/RecipeListText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/list_item_difficulty"
+        android:layout_alignParentBottom="true"/>
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/list_item_likes"
+        style="@style/RecipeListText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"/>
 
-</LinearLayout>
+</RelativeLayout>

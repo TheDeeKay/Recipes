@@ -1,6 +1,7 @@
 package co.bstorm.aleksa.recipes.dummy;
 
 import android.content.Context;
+import android.os.Handler;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,19 +41,29 @@ public class DummyData {
             .registerTypeAdapter(TagCategory.class, new MyDeserializer<TagCategory>())
             .create();
 
-    public static Recipe dummyRecipe;
-
-    public static List<Recipe> dummyRecipes = new ArrayList<>();
-    public static List<Component> dummyComponents = new ArrayList<>();
-    public static List<TagCategory> dummyTagCategories = new ArrayList<>();
+    public static ArrayList<Recipe> dummyRecipes;// = new ArrayList<>();
+    public static ArrayList<Component> dummyComponents;// = new ArrayList<>();
+    public static ArrayList<TagCategory> dummyTagCategories;// = new ArrayList<>();
 
 
-    public static void initDummyData(Context context){
+    public static void initDummyData(final Context context, final DummyCallback callback){
 
-        dummyRecipes = gson.fromJson(readRawFile(context, R.raw.recipes), recipeType);
-        dummyComponents = gson.fromJson(readRawFile(context, R.raw.components), componentType);
-        dummyTagCategories = gson.fromJson(readRawFile(context, R.raw.tags), tagType);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                dummyRecipes = gson.fromJson(readRawFile(context, R.raw.recipes), recipeType);
+                dummyComponents = gson.fromJson(readRawFile(context, R.raw.components), componentType);
+                dummyTagCategories = gson.fromJson(readRawFile(context, R.raw.tags), tagType);
 
+                Handler handler = new Handler(context.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.loadingFinished();
+                    }
+                });
+            }
+        }).start();
     }
 
 
