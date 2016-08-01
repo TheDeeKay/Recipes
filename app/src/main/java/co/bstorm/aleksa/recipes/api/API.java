@@ -31,6 +31,7 @@ public class API {
     private static Type tagListType = new TypeToken<ArrayList<TagCategory>>(){}.getType();
 
     private static Gson gson = new GsonBuilder()
+            .excludeFieldsWithoutExposeAnnotation()
             .registerTypeAdapter(Recipe.class, new MyDeserializer<Recipe>())
             .registerTypeAdapter(recipeListType, new MyDeserializer<List<Recipe>>())
             .registerTypeAdapter(Component.class, new MyDeserializer<Component>())

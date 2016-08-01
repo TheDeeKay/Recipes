@@ -30,4 +30,6 @@ dependencies {
 
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.android.support:support-v4:23.4.0'
+
+    compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
 }

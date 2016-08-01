@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,9 @@ public class DummyData {
     static Type tagType = new TypeToken<ArrayList<TagCategory>>(){}.getType();
 
     private static Gson gson = new GsonBuilder()
+            .excludeFieldsWithoutExposeAnnotation()
+            .excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC)
+            .serializeNulls()
             .registerTypeAdapter(recipeType, new MyDeserializer<List<Recipe>>())
             .registerTypeAdapter(Recipe.class, new MyDeserializer<Recipe>())
             .registerTypeAdapter(componentType, new MyDeserializer<List<Component>>())

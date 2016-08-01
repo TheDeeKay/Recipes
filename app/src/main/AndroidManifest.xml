@@ -3,14 +3,26 @@
     package="co.bstorm.aleksa.recipes">
 
     <application
+        android:name=".config.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data
-        android:name="co.bstorm.aleksa.recipes.glide.MyGlideModule"
-        android:value="GlideModule" />
+
+        <meta-data android:name="co.bstorm.aleksa.recipes.config.MyGlideModule" android:value="GlideModule" />
+        <meta-data android:name="AA_DB_NAME" android:value="Bstorm.db"/>
+        <meta-data android:name="AA_DB_VERSION" android:value="1"/>
+        <meta-data android:name="AA_MODELS"
+            android:value="
+            co.bstorm.aleksa.recipes.pojo.Component,
+            co.bstorm.aleksa.recipes.pojo.Recipe,
+            co.bstorm.aleksa.recipes.pojo.Recipe$Tag,
+            co.bstorm.aleksa.recipes.pojo.Recipe$Ingredient,
+            co.bstorm.aleksa.recipes.pojo.Step,
+            co.bstorm.aleksa.recipes.pojo.Tag,
+            co.bstorm.aleksa.recipes.pojo.TagCategory"/>
+
         <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,10 +30,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
         <activity android:name=".ui.DetailActivity"/>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
 </manifest>

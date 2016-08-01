@@ -1,5 +1,9 @@
 package co.bstorm.aleksa.recipes.pojo;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
@@ -9,39 +13,63 @@ import java.util.List;
  * Created by aleksa on 7/29/16.
  * TODO
  */
-public class Recipe {
+@Table(name = "Recipes")
+public class Recipe extends Model {
 
+    @Column
+    @Expose
     @SerializedName("id")
-    private int id;
+    private int remoteId;
+    @Column
+    @Expose
     @SerializedName("title")
     private String title;
+    @Column
+    @Expose
     @SerializedName("image_file_name")
     private String imageUrl;
-    @SerializedName("image_size")
-    private String imageSize;
+    @Column
+    @Expose
     @SerializedName("difficulty")
     private int difficulty;
+    @Column
+    @Expose
     @SerializedName("default_serving_size")
     private int defaultServingSize;
+    @Column
+    @Expose
     @SerializedName("preparation_time")
     private int preparationTime;
+    @Column
+    @Expose
     @SerializedName("likes")
     private int likes;
+    @Column
+    @Expose
     @SerializedName("is_featured")
     private int isFeatured;
+    @Column
+    @Expose
     @SerializedName("steps")
     private List<Step> steps = new ArrayList<Step>();
+    @Column
+    @Expose
     @SerializedName("tags")
     private List<Tag> tags = new ArrayList<Tag>();
+    @Column
+    @Expose
     @SerializedName("ingredients")
     private List<Ingredient> ingredients = new ArrayList<Ingredient>();
 
-    public int getId() {
-        return id;
+    public Recipe() {
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public int getRemoteId() {
+        return remoteId;
+    }
+
+    public void setRemoteId(int id) {
+        this.remoteId = id;
     }
 
     public String getTitle() {
@@ -112,22 +140,6 @@ public class Recipe {
         return tags;
     }
 
-    public String getImageSize() {
-        return imageSize;
-    }
-
-    public void setImageSize(String imageSize) {
-        this.imageSize = imageSize;
-    }
-
-    public int getImageWidth(){
-        return Integer.parseInt(imageSize.split("x")[0]);
-    }
-
-    public int getImageHeight(){
-        return Integer.parseInt(imageSize.split("x")[1]);
-    }
-
     public void setTags(List<Tag> tags) {
         this.tags = tags;
     }
@@ -144,21 +156,31 @@ public class Recipe {
      * Created by aleksa on 7/29/16.
      * TODO
      */
-    public static class Ingredient {
+    @Table(name = "Ingredients")
+    public static class Ingredient extends Model{
 
+        @Column
+        @Expose
         @SerializedName("id")
-        private int id;
+        private int remoteId;
+        @Column
+        @Expose
         @SerializedName("quantity")
         private float quantity;
+        @Column
+        @Expose
         @SerializedName("preferred_measure")
         private String preferredMeasure;
 
-        public int getId() {
-            return id;
+        public Ingredient() {
         }
 
-        public void setId(int id) {
-            this.id = id;
+        public int getRemoteId() {
+            return remoteId;
+        }
+
+        public void setRemoteId(int id) {
+            this.remoteId = id;
         }
 
         public float getQuantity() {
@@ -182,16 +204,22 @@ public class Recipe {
      * Created by aleksa on 7/29/16.
      * TODO
      */
-    public static class Tag {
+    @Table(name = "RecipeTags")
+    public static class Tag extends Model{
+        @Column
+        @Expose
         @SerializedName("id")
-        private int id;
+        private int remoteId;
 
-        public int getId() {
-            return id;
+        public Tag() {
         }
 
-        public void setId(int id) {
-            this.id = id;
+        public int getRemoteId() {
+            return remoteId;
+        }
+
+        public void setRemoteId(int id) {
+            this.remoteId = id;
         }
     }
 }

@@ -1,25 +1,39 @@
 package co.bstorm.aleksa.recipes.pojo;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by aleksa on 7/30/16.
  */
-public class Tag {
+@Table(name = "Tags")
+public class Tag extends Model{
 
+    @Column
+    @Expose
     @SerializedName("id")
-    private int id;
+    private int remoteId;
+    @Column
+    @Expose
     @SerializedName("name")
     private String name;
+    @Column
+    @Expose
     @SerializedName("tag_category_id")
     private String tagCategoryId;
 
-    public int getId() {
-        return id;
+    public Tag() {
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public int getRemoteId() {
+        return remoteId;
+    }
+
+    public void setRemoteId(int id) {
+        this.remoteId = id;
     }
 
     public String getName() {

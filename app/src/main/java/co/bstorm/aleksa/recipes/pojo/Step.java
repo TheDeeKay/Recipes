@@ -1,32 +1,52 @@
 package co.bstorm.aleksa.recipes.pojo;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by aleksa on 7/29/16.
  * TODO
  */
-public class Step {
+@Table(name = "Steps")
+public class Step extends Model{
 
+    @Column
+    @Expose
     @SerializedName("id")
-    private int id;
+    private int returnId;
+    @Column
+    @Expose
     @SerializedName("text")
     private String text;
+    @Column
+    @Expose
     @SerializedName("seq_num")
     private int sequenceIndex;
+    @Column
+    @Expose
     @SerializedName("timer")
     private int timer;
+    @Column
+    @Expose
     @SerializedName("timer_name")
     private String timerName;
+    @Column
+    @Expose
     @SerializedName("image_file_name")
     private String imageUrl;
 
-    public int getId() {
-        return id;
+    public Step() {
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public int getRemoteId() {
+        return returnId;
+    }
+
+    public void setRemoteId(int id) {
+        this.returnId = id;
     }
 
     public String getText() {

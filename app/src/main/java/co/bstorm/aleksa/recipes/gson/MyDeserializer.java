@@ -1,12 +1,13 @@
 package co.bstorm.aleksa.recipes.gson;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -40,7 +41,12 @@ public class MyDeserializer<T> implements JsonDeserializer<T>{
         if (memberName != null && json.getAsJsonObject().has(memberName))
             element = json.getAsJsonObject().get(memberName);
 
-        return new Gson().fromJson(element, typeOfT);
+        return new GsonBuilder()
+                .serializeNulls()
+                .excludeFieldsWithoutExposeAnnotation()
+                .excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC)
+                .create()
+                .fromJson(element, typeOfT);
     }
 
 
