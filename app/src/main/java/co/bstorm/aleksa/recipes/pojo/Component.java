@@ -13,7 +13,7 @@ import com.google.gson.annotations.SerializedName;
 @Table(name = "Components")
 public class Component extends Model{
 
-    @Column
+    @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     @SerializedName("id")
     private int remoteId;

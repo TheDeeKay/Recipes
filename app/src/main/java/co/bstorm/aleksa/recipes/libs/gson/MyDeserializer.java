@@ -1,4 +1,4 @@
-package co.bstorm.aleksa.recipes.gson;
+package co.bstorm.aleksa.recipes.libs.gson;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -43,7 +43,6 @@ public class MyDeserializer<T> implements JsonDeserializer<T>{
 
         return new GsonBuilder()
                 .serializeNulls()
-                .excludeFieldsWithoutExposeAnnotation()
                 .excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC)
                 .create()
                 .fromJson(element, typeOfT);

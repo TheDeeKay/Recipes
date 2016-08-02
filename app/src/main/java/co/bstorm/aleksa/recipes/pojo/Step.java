@@ -13,10 +13,10 @@ import com.google.gson.annotations.SerializedName;
 @Table(name = "Steps")
 public class Step extends Model{
 
-    @Column
+    @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     @SerializedName("id")
-    private int returnId;
+    private int remoteId;
     @Column
     @Expose
     @SerializedName("text")
@@ -38,15 +38,18 @@ public class Step extends Model{
     @SerializedName("image_file_name")
     private String imageUrl;
 
+    @Column
+    private int recipeId;
+
     public Step() {
     }
 
     public int getRemoteId() {
-        return returnId;
+        return remoteId;
     }
 
     public void setRemoteId(int id) {
-        this.returnId = id;
+        this.remoteId = id;
     }
 
     public String getText() {
@@ -87,5 +90,13 @@ public class Step extends Model{
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public int getRecipeId() {
+        return recipeId;
+    }
+
+    public void setRecipeId(int recipeId) {
+        this.recipeId = recipeId;
     }
 }

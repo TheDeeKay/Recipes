@@ -1,4 +1,4 @@
-package co.bstorm.aleksa.recipes.config;
+package co.bstorm.aleksa.recipes.libs.glide;
 
 import android.content.Context;
 

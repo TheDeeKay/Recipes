@@ -12,7 +12,7 @@ import com.google.gson.annotations.SerializedName;
 @Table(name = "Tags")
 public class Tag extends Model{
 
-    @Column
+    @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     @SerializedName("id")
     private int remoteId;
@@ -23,7 +23,7 @@ public class Tag extends Model{
     @Column
     @Expose
     @SerializedName("tag_category_id")
-    private String tagCategoryId;
+    private int tagCategoryId;
 
     public Tag() {
     }
@@ -44,11 +44,11 @@ public class Tag extends Model{
         this.name = name;
     }
 
-    public String getTagCategoryId() {
+    public int getTagCategoryId() {
         return tagCategoryId;
     }
 
-    public void setTagCategoryId(String tagCategoryId) {
+    public void setTagCategoryId(int tagCategoryId) {
         this.tagCategoryId = tagCategoryId;
     }
 }

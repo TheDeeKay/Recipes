@@ -4,20 +4,22 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.bstorm.aleksa.recipes.api.retrofit.RecipesApiInterface;
+import co.bstorm.aleksa.recipes.libs.retrofit.RecipesApiInterface;
 import co.bstorm.aleksa.recipes.constants.Constants;
-import co.bstorm.aleksa.recipes.gson.MyDeserializer;
+import co.bstorm.aleksa.recipes.libs.gson.MyDeserializer;
 import co.bstorm.aleksa.recipes.pojo.Component;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
 import co.bstorm.aleksa.recipes.pojo.Tag;
 import co.bstorm.aleksa.recipes.pojo.TagCategory;
-import retrofit2.Call;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Observable;
 
 /**
  * Created by aleksa on 7/29/16.
@@ -31,7 +33,8 @@ public class API {
     private static Type tagListType = new TypeToken<ArrayList<TagCategory>>(){}.getType();
 
     private static Gson gson = new GsonBuilder()
-            .excludeFieldsWithoutExposeAnnotation()
+            .excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC)
+            .serializeNulls()
             .registerTypeAdapter(Recipe.class, new MyDeserializer<Recipe>())
             .registerTypeAdapter(recipeListType, new MyDeserializer<List<Recipe>>())
             .registerTypeAdapter(Component.class, new MyDeserializer<Component>())
@@ -44,24 +47,25 @@ public class API {
             new Retrofit.Builder()
                     .baseUrl(Constants.APIConstants.BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create(gson))
+                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .build();
 
 
     private static RecipesApiInterface recipesInterface = retrofit.create(RecipesApiInterface.class);
 
-    public static Call<ArrayList<Recipe>> getAllRecipes(){
+    public static Observable<ArrayList<Recipe>> getAllRecipes(){
         return recipesInterface.listAllRecipes();
     }
 
-    public static Call<ArrayList<Recipe>> getOffsetRecipes(int offset){
+    public static Observable<ArrayList<Recipe>> getOffsetRecipes(int offset){
         return recipesInterface.listOffsetRecipes(offset);
     }
 
-    public static Call<ArrayList<Component>> getAllIngredients(){
+    public static Observable<ArrayList<Component>> getAllIngredients(){
         return recipesInterface.listAllIngredients();
     }
 
-    public static Call<ArrayList<Tag>> getAllTags(){
+    public static Observable<ArrayList<Tag>> getAllTags(){
         return recipesInterface.listAllTags();
     }
 }

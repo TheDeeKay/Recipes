@@ -15,7 +15,7 @@ import java.util.List;
 @Table(name = "TagCategories")
 public class TagCategory extends Model{
 
-    @Column
+    @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     @SerializedName("id")
     private int remoteId;
@@ -23,7 +23,6 @@ public class TagCategory extends Model{
     @Expose
     @SerializedName("name")
     private String name;
-    @Column
     @Expose
     @SerializedName("tags")
     private List<Tag> tags = new ArrayList<>();

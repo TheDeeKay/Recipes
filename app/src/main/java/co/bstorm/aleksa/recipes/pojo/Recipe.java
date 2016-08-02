@@ -6,7 +6,6 @@ import com.activeandroid.annotation.Table;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,7 +15,7 @@ import java.util.List;
 @Table(name = "Recipes")
 public class Recipe extends Model {
 
-    @Column
+    @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     @SerializedName("id")
     private int remoteId;
@@ -48,18 +47,15 @@ public class Recipe extends Model {
     @Expose
     @SerializedName("is_featured")
     private int isFeatured;
-    @Column
     @Expose
     @SerializedName("steps")
-    private List<Step> steps = new ArrayList<Step>();
-    @Column
+    private List<Step> steps;
     @Expose
     @SerializedName("tags")
-    private List<Tag> tags = new ArrayList<Tag>();
-    @Column
+    private List<Tag> tags;
     @Expose
     @SerializedName("ingredients")
-    private List<Ingredient> ingredients = new ArrayList<Ingredient>();
+    private List<Ingredient> ingredients;
 
     public Recipe() {
     }
@@ -159,10 +155,10 @@ public class Recipe extends Model {
     @Table(name = "Ingredients")
     public static class Ingredient extends Model{
 
-        @Column
+        @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
         @Expose
         @SerializedName("id")
-        private int remoteId;
+        private int remoteId; // Refers to Component ID
         @Column
         @Expose
         @SerializedName("quantity")
@@ -171,6 +167,9 @@ public class Recipe extends Model {
         @Expose
         @SerializedName("preferred_measure")
         private String preferredMeasure;
+
+        @Column
+        private int recipeId;
 
         public Ingredient() {
         }
@@ -198,28 +197,14 @@ public class Recipe extends Model {
         public void setPreferredMeasure(String preferredMeasure) {
             this.preferredMeasure = preferredMeasure;
         }
-    }
 
-    /**
-     * Created by aleksa on 7/29/16.
-     * TODO
-     */
-    @Table(name = "RecipeTags")
-    public static class Tag extends Model{
-        @Column
-        @Expose
-        @SerializedName("id")
-        private int remoteId;
-
-        public Tag() {
+        public int getRecipeId() {
+            return recipeId;
         }
 
-        public int getRemoteId() {
-            return remoteId;
-        }
-
-        public void setRemoteId(int id) {
-            this.remoteId = id;
+        public void setRecipeId(int recipeId) {
+            this.recipeId = recipeId;
         }
     }
+
 }

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.bstorm.aleksa.recipes.R;
-import co.bstorm.aleksa.recipes.gson.MyDeserializer;
+import co.bstorm.aleksa.recipes.libs.gson.MyDeserializer;
 import co.bstorm.aleksa.recipes.pojo.Component;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
 import co.bstorm.aleksa.recipes.pojo.TagCategory;
@@ -34,7 +34,6 @@ public class DummyData {
     static Type tagType = new TypeToken<ArrayList<TagCategory>>(){}.getType();
 
     private static Gson gson = new GsonBuilder()
-            .excludeFieldsWithoutExposeAnnotation()
             .excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC)
             .serializeNulls()
             .registerTypeAdapter(recipeType, new MyDeserializer<List<Recipe>>())
