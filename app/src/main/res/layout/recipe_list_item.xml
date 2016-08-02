@@ -10,10 +10,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
+        <co.bstorm.aleksa.recipes.ui.widget.SquareImageView
             android:id="@+id/list_item_image"
-            android:layout_height="match_parent"
-            style="@style/FillWidthKeepAspectImage"/>
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:scaleType="centerCrop"/>
 
         <View
             android:layout_width="match_parent"

@@ -66,7 +66,7 @@ public class RecipeAdapter extends ArrayAdapter<Recipe> {
         }
         view.setLayoutParams(params);
 
-//        view.setDrawingCacheEnabled(true);
+        view.setDrawingCacheEnabled(true);
 
         ImageView image = (ImageView) view.findViewById(R.id.list_item_image);
         TextView title = (TextView) view.findViewById(R.id.list_item_recipe_title);
