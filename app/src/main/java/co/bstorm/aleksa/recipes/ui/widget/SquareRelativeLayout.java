@@ -22,6 +22,11 @@ public class SquareRelativeLayout extends RelativeLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+
+        super.onMeasure(
+                MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY)
+        );
     }
 }

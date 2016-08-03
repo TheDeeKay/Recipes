@@ -1,7 +1,6 @@
 package co.bstorm.aleksa.recipes.dummy;
 
 import android.content.Context;
-import android.os.Handler;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -49,7 +48,7 @@ public class DummyData {
     public static ArrayList<TagCategory> dummyTagCategories;// = new ArrayList<>();
 
 
-    public static void initDummyData(final Context context, final DummyCallback callback){
+    public static void initDummyData(final Context context) {
 
         new Thread(new Runnable() {
             @Override
@@ -57,14 +56,15 @@ public class DummyData {
                 dummyRecipes = gson.fromJson(readRawFile(context, R.raw.recipes), recipeType);
                 dummyComponents = gson.fromJson(readRawFile(context, R.raw.components), componentType);
                 dummyTagCategories = gson.fromJson(readRawFile(context, R.raw.tags), tagType);
-
-                Handler handler = new Handler(context.getMainLooper());
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.loadingFinished();
-                    }
-                });
+//
+//                Handler handler = new Handler(context.getMainLooper());
+//                handler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        callback.loadingFinished();
+//                    }
+//                });
+//            }
             }
         }).start();
     }

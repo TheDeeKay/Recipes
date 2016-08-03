@@ -9,17 +9,19 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
+import co.bstorm.aleksa.recipes.constants.DbColumns;
+
 /**
  * Created by aleksa on 7/30/16.
  */
 @Table(name = "TagCategories")
 public class TagCategory extends Model{
 
-    @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
+    @Column(name = DbColumns.TagCategory.REMOTE_ID, unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     @SerializedName("id")
     private int remoteId;
-    @Column
+    @Column(name = DbColumns.TagCategory.NAME)
     @Expose
     @SerializedName("name")
     private String name;

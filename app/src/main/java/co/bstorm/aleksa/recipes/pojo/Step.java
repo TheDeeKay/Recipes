@@ -6,6 +6,8 @@ import com.activeandroid.annotation.Table;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import co.bstorm.aleksa.recipes.constants.DbColumns;
+
 /**
  * Created by aleksa on 7/29/16.
  * TODO
@@ -13,32 +15,28 @@ import com.google.gson.annotations.SerializedName;
 @Table(name = "Steps")
 public class Step extends Model{
 
-    @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
+    @Column(name = DbColumns.Step.REMOTE_ID, unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     @SerializedName("id")
     private int remoteId;
-    @Column
+    @Column(name = DbColumns.Step.TEXT)
     @Expose
     @SerializedName("text")
     private String text;
-    @Column
+    @Column(name = DbColumns.Step.SEQUENCE_INDEX)
     @Expose
     @SerializedName("seq_num")
     private int sequenceIndex;
-    @Column
+    @Column(name = DbColumns.Step.TIMER)
     @Expose
     @SerializedName("timer")
     private int timer;
-    @Column
+    @Column(name = DbColumns.Step.TIMER_NAME)
     @Expose
     @SerializedName("timer_name")
     private String timerName;
-    @Column
-    @Expose
-    @SerializedName("image_file_name")
-    private String imageUrl;
 
-    @Column
+    @Column(name = DbColumns.Step.RECIPE_ID)
     private int recipeId;
 
     public Step() {
@@ -82,14 +80,6 @@ public class Step extends Model{
 
     public void setTimerName(String timerName) {
         this.timerName = timerName;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public int getRecipeId() {

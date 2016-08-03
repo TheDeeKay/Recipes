@@ -6,21 +6,23 @@ import com.activeandroid.annotation.Table;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import co.bstorm.aleksa.recipes.constants.DbColumns;
+
 /**
  * Created by aleksa on 7/30/16.
  */
 @Table(name = "Tags")
 public class Tag extends Model{
 
-    @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
+    @Column(name = DbColumns.Tag.REMOTE_ID, unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     @SerializedName("id")
     private int remoteId;
-    @Column
+    @Column(name = DbColumns.Tag.NAME)
     @Expose
     @SerializedName("name")
     private String name;
-    @Column
+    @Column(name = DbColumns.Tag.TAG_CATEGORY_ID)
     @Expose
     @SerializedName("tag_category_id")
     private int tagCategoryId;

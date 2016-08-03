@@ -6,6 +6,8 @@ import com.activeandroid.annotation.Table;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import co.bstorm.aleksa.recipes.constants.DbColumns;
+
 /**
  * Created by aleksa on 7/30/16.
  * TODO
@@ -13,15 +15,15 @@ import com.google.gson.annotations.SerializedName;
 @Table(name = "Components")
 public class Component extends Model{
 
-    @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
+    @Column(name = DbColumns.Component.REMOTE_ID, unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     @SerializedName("id")
     private int remoteId;
-    @Column
+    @Column(name = DbColumns.Component.NAME)
     @Expose
     @SerializedName("name")
     private String name;
-    @Column
+    @Column(name = DbColumns.Component.QUANTITY_TYPE)
     @Expose
     @SerializedName("quantity_type")
     private String quantityType;

@@ -1,5 +1,7 @@
 package co.bstorm.aleksa.recipes.pojo;
 
+import android.provider.BaseColumns;
+
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
@@ -8,42 +10,44 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
+import co.bstorm.aleksa.recipes.constants.DbColumns;
+
 /**
  * Created by aleksa on 7/29/16.
  * TODO
  */
-@Table(name = "Recipes")
+@Table(name = "Recipes", id = BaseColumns._ID)
 public class Recipe extends Model {
 
-    @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
+    @Column(name = DbColumns.Recipe.REMOTE_ID, unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     @SerializedName("id")
     private int remoteId;
-    @Column
+    @Column(name = DbColumns.Recipe.TITLE)
     @Expose
     @SerializedName("title")
     private String title;
-    @Column
+    @Column(name = DbColumns.Recipe.IMAGE_URL)
     @Expose
     @SerializedName("image_file_name")
     private String imageUrl;
-    @Column
+    @Column(name = DbColumns.Recipe.DIFFICULTY)
     @Expose
     @SerializedName("difficulty")
     private int difficulty;
-    @Column
+    @Column(name = DbColumns.Recipe.SERVING_SIZE)
     @Expose
     @SerializedName("default_serving_size")
     private int defaultServingSize;
-    @Column
+    @Column(name = DbColumns.Recipe.PREP_TIME)
     @Expose
     @SerializedName("preparation_time")
     private int preparationTime;
-    @Column
+    @Column(name = DbColumns.Recipe.LIKES)
     @Expose
     @SerializedName("likes")
     private int likes;
-    @Column
+    @Column(name = DbColumns.Recipe.IS_FEATURED)
     @Expose
     @SerializedName("is_featured")
     private int isFeatured;
@@ -155,31 +159,31 @@ public class Recipe extends Model {
     @Table(name = "Ingredients")
     public static class Ingredient extends Model{
 
-        @Column(unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
+        @Column(name = DbColumns.Ingredient.COMPONENT_ID, unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
         @Expose
         @SerializedName("id")
-        private int remoteId; // Refers to Component ID
-        @Column
+        private int componentId;
+        @Column(name = DbColumns.Ingredient.QUANTITY)
         @Expose
         @SerializedName("quantity")
         private float quantity;
-        @Column
+        @Column(name = DbColumns.Ingredient.PREFERRED_MEASURE)
         @Expose
         @SerializedName("preferred_measure")
         private String preferredMeasure;
 
-        @Column
+        @Column(name = DbColumns.Ingredient.RECIPE_ID)
         private int recipeId;
 
         public Ingredient() {
         }
 
         public int getRemoteId() {
-            return remoteId;
+            return componentId;
         }
 
         public void setRemoteId(int id) {
-            this.remoteId = id;
+            this.componentId = id;
         }
 
         public float getQuantity() {
