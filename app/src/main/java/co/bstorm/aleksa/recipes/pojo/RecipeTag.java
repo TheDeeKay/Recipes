@@ -1,5 +1,7 @@
 package co.bstorm.aleksa.recipes.pojo;
 
+import android.provider.BaseColumns;
+
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
@@ -9,7 +11,7 @@ import co.bstorm.aleksa.recipes.constants.DbColumns;
 /**
  * Created by aleksa on 8/2/16.
  */
-@Table(name = "RecipeTags")
+@Table(name = DbColumns.RecipeTag.TABLE_NAME, id = BaseColumns._ID)
 public class RecipeTag extends Model {
 
     @Column(name = DbColumns.RecipeTag.RECIPE_ID, uniqueGroups = {"uniqueGroup"}, onUniqueConflicts = {Column.ConflictAction.REPLACE})

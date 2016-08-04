@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<co.bstorm.aleksa.recipes.ui.widget.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <co.bstorm.aleksa.recipes.ui.widget.SquareImageView
+        android:id="@+id/details_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/shadow_gradient"/>
+
+    <TextView
+        android:id="@+id/details_recipe_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        android:layout_margin="10dp"
+        android:textStyle="bold"/>
+
+</co.bstorm.aleksa.recipes.ui.widget.SquareRelativeLayout>

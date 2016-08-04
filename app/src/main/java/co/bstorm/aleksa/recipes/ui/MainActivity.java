@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.content.ContentProvider;
@@ -23,6 +22,7 @@ import co.bstorm.aleksa.recipes.R;
 import co.bstorm.aleksa.recipes.api.API;
 import co.bstorm.aleksa.recipes.constants.Constants;
 import co.bstorm.aleksa.recipes.dummy.DummyData;
+import co.bstorm.aleksa.recipes.pojo.Component;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
 import co.bstorm.aleksa.recipes.pojo.RecipeTag;
 import co.bstorm.aleksa.recipes.ui.adapter.RecipeListAdapter;
@@ -31,19 +31,21 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
-    SimpleCursorAdapter mAdapter;
+    RecipeListAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // TODO refactor this
         API.getAllRecipes()
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(new Subscriber<ArrayList<Recipe>>() {
                     @Override
                     public void onCompleted() {
+                        Log.e("TAG", "Finished first");
                         Recipe recipe = new Select().from(Recipe.class).orderBy("RANDOM()").executeSingle();
                         if (recipe != null)
                             Log.e("Finished inserting", recipe.getTitle() /*String.valueOf(recipe.getTags().get(0).getRemoteId())*/);
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                     @Override
                     public void onNext(ArrayList<Recipe> recipes) {
+                        Log.e("TAG", "Begun first");
                         Recipe recipe;
                         ActiveAndroid.beginTransaction();
                         try {
@@ -92,6 +95,41 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     }
                 });
 
+        API.getAllComponents()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new Subscriber<ArrayList<Component>>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.e("getAllComponents", "Finished second");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("getAllComponents", "Error: " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(ArrayList<Component> components) {
+                        Log.e("TAG", "Begun second");
+                        ActiveAndroid.beginTransaction();
+                        try {
+                            Component component;
+                            int size = components.size();
+                            for (int i = 0; i < size; i++) {
+                                component = components.get(i);
+
+                                component.save();
+                            }
+                            ActiveAndroid.setTransactionSuccessful();
+                        }
+                        finally {
+                            ActiveAndroid.endTransaction();
+                        }
+                    }
+                });
+
+
         final ListView recipesList = (ListView) findViewById(R.id.recipes_list);
 
         // TODO extract those into constants (column names)
@@ -101,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         recipesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                launchDetails(position);
+                launchDetails(id, mAdapter.getRecipeTitle(position), mAdapter.getImageUrl(position), mAdapter.getServings(position));
             }
         });
 
@@ -114,9 +152,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
      * Launches the details activity for the given recipe ID
      * @param id ID of the recipe whose details we want
      */
-    private void launchDetails(long id){
+    private void launchDetails(long id, String recipeTitle, String imageUrl, int servings){
         Intent detailsIntent = new Intent(this, DetailActivity.class);
         detailsIntent.putExtra(Constants.RECIPE_ID_EXTRA, id);
+        detailsIntent.putExtra(Constants.RECIPE_TITLE_EXTRA, recipeTitle);
+        detailsIntent.putExtra(Constants.IMAGE_URL_EXTRA, imageUrl);
+        detailsIntent.putExtra(Constants.SERVINGS_EXTRA, servings);
         startActivity(detailsIntent);
     }
 

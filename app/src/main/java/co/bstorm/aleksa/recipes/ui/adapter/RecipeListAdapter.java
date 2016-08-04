@@ -64,6 +64,34 @@ public class RecipeListAdapter extends SimpleCursorAdapter {
         screenWidth = size.x;
     }
 
+    @Override
+    public long getItemId(int position) {
+        if (getCursor() == null)
+            return 0;
+        getCursor().moveToPosition(position);
+        return getCursor().getLong(getCursor().getColumnIndex(DbColumns.Recipe.REMOTE_ID));
+    }
+
+    public String getRecipeTitle(int position){
+        if (getCursor() == null)
+            return "";
+        getCursor().moveToPosition(position);
+        return getCursor().getString(getCursor().getColumnIndex(DbColumns.Recipe.TITLE));
+    }
+
+    public String getImageUrl(int position){
+        if (getCursor() == null)
+            return "";
+        getCursor().moveToPosition(position);
+        return getCursor().getString(getCursor().getColumnIndex(DbColumns.Recipe.IMAGE_URL));
+    }
+
+    public int getServings(int position){
+        if (getCursor() == null)
+            return 0;
+        getCursor().moveToPosition(position);
+        return getCursor().getInt(getCursor().getColumnIndex(DbColumns.Recipe.SERVING_SIZE));
+    }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {

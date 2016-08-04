@@ -16,7 +16,7 @@ import co.bstorm.aleksa.recipes.constants.DbColumns;
  * Created by aleksa on 7/29/16.
  * TODO
  */
-@Table(name = "Recipes", id = BaseColumns._ID)
+@Table(name = DbColumns.Recipe.TABLE_NAME, id = BaseColumns._ID)
 public class Recipe extends Model {
 
     @Column(name = DbColumns.Recipe.REMOTE_ID, unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
@@ -156,7 +156,7 @@ public class Recipe extends Model {
      * Created by aleksa on 7/29/16.
      * TODO
      */
-    @Table(name = "Ingredients")
+    @Table(name = DbColumns.Ingredient.TABLE_NAME, id = BaseColumns._ID)
     public static class Ingredient extends Model{
 
         @Column(name = DbColumns.Ingredient.COMPONENT_ID, unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)

@@ -7,6 +7,8 @@ public class DbColumns {
 
     public static class Recipe {
 
+        public static final String TABLE_NAME = "Recipes";
+
         public static final String REMOTE_ID = "remoteId";
         public static final String TITLE = "title";
         public static final String IMAGE_URL = "imageUrl";
@@ -20,7 +22,9 @@ public class DbColumns {
 
     public static class Ingredient {
 
-        public static final String COMPONENT_ID = "remoteId";
+        public static final String TABLE_NAME = "Ingredients";
+
+        public static final String COMPONENT_ID = "componentId";
         public static final String QUANTITY = "quantity";
         public static final String PREFERRED_MEASURE = "measure";
         public static final String RECIPE_ID = "recipeId";
@@ -29,12 +33,16 @@ public class DbColumns {
 
     public static class RecipeTag {
 
+        public static final String TABLE_NAME = "RecipeTags";
+
         public static final String RECIPE_ID = "recipeId";
         public static final String TAG_ID = "tagId";
 
     }
 
     public static class Component {
+
+        public static final String TABLE_NAME = "Components";
 
         public static final String REMOTE_ID = "remoteId";
         public static final String NAME = "name";
@@ -43,6 +51,8 @@ public class DbColumns {
     }
 
     public static class Step {
+
+        public static final String TABLE_NAME = "Steps";
 
         public static final String REMOTE_ID = "remoteId";
         public static final String TEXT = "text";
@@ -55,6 +65,8 @@ public class DbColumns {
 
     public static class Tag {
 
+        public static final String TABLE_NAME = "Tags";
+
         public static final String REMOTE_ID = "remoteId";
         public static final String NAME = "name";
         public static final String TAG_CATEGORY_ID = "tagCategoryId";
@@ -62,6 +74,8 @@ public class DbColumns {
     }
 
     public static class TagCategory {
+
+        public static final String TABLE_NAME = "TagCategories";
 
         public static final String REMOTE_ID = "remoteId";
         public static final String NAME = "name";

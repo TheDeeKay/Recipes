@@ -29,8 +29,8 @@ public interface RecipesApiInterface {
 
     // Gets a list of all components
     @Headers("Accept-Language: SRB")
-    @GET("components/get-components")
-    Observable<ArrayList<Component>> listAllIngredients();
+    @GET("ingredients/get-ingredients")
+    Observable<ArrayList<Component>> listAllComponents();
 
     // Gets a list of all tags
     @Headers("Accept-Language: SRB")

@@ -61,8 +61,8 @@ public class API {
         return recipesInterface.listOffsetRecipes(offset);
     }
 
-    public static Observable<ArrayList<Component>> getAllIngredients(){
-        return recipesInterface.listAllIngredients();
+    public static Observable<ArrayList<Component>> getAllComponents(){
+        return recipesInterface.listAllComponents();
     }
 
     public static Observable<ArrayList<Tag>> getAllTags(){
