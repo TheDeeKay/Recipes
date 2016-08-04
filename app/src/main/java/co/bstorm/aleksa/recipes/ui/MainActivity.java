@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import co.bstorm.aleksa.recipes.R;
 import co.bstorm.aleksa.recipes.api.API;
 import co.bstorm.aleksa.recipes.constants.Constants;
-import co.bstorm.aleksa.recipes.dummy.DummyData;
 import co.bstorm.aleksa.recipes.pojo.Component;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
 import co.bstorm.aleksa.recipes.pojo.RecipeTag;
@@ -59,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                     @Override
                     public void onNext(ArrayList<Recipe> recipes) {
-                        Log.e("TAG", "Begun first");
                         Recipe recipe;
                         ActiveAndroid.beginTransaction();
                         try {
@@ -101,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 .subscribe(new Subscriber<ArrayList<Component>>() {
                     @Override
                     public void onCompleted() {
-                        Log.e("getAllComponents", "Finished second");
                     }
 
                     @Override
@@ -111,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                     @Override
                     public void onNext(ArrayList<Component> components) {
-                        Log.e("TAG", "Begun second");
                         ActiveAndroid.beginTransaction();
                         try {
                             Component component;
@@ -144,8 +140,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         });
 
         getLoaderManager().initLoader(0, null, this);
-
-        DummyData.initDummyData(this);
     }
 
     /** TODO this will change when master/detail is implemented

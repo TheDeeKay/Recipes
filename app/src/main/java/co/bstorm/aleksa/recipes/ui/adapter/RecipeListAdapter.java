@@ -3,42 +3,38 @@ package co.bstorm.aleksa.recipes.ui.adapter;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Point;
+import android.support.v4.widget.CursorAdapter;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import co.bstorm.aleksa.recipes.R;
+import co.bstorm.aleksa.recipes.constants.Constants;
 import co.bstorm.aleksa.recipes.constants.DbColumns;
+import co.bstorm.aleksa.recipes.ui.widget.SquareImageView;
 
 /**
  * Created by aleksa on 7/30/16.
  *
- * Temporary adapter to represent Recipe data
- * Will be replaced by a CursorAdapter or sth
+ * An adapter to represent main Recipe data
  */
-public class RecipeListAdapter extends SimpleCursorAdapter {
+public class RecipeListAdapter extends CursorAdapter {
 
     private static final String TAG = "RecipeListAdapter";
 
-    // TODO extract this to String constants (the column names)
     private static String from[] = new String[]{
             DbColumns.Recipe.TITLE,
-            DbColumns.Recipe.DIFFICULTY,
-            DbColumns.Recipe.PREP_TIME,
             DbColumns.Recipe.LIKES,
     };
     private static int to[] = new int[]{
             R.id.list_item_recipe_title,
-            R.id.list_item_difficulty,
-            R.id.list_item_prep_time,
             R.id.list_item_likes
     };
 
@@ -48,11 +44,11 @@ public class RecipeListAdapter extends SimpleCursorAdapter {
     int screenWidth;
 
     public RecipeListAdapter(Context context, Cursor c){
-        this(context, R.layout.recipe_list_item, c, from, to, 0);
+        this(context, c, 0);
     }
 
-    public RecipeListAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
-        super(context, layout, c, from, to, flags);
+    public RecipeListAdapter(Context context, Cursor c, int flags) {
+        super(context, c, flags);
 
         data = c;
         inflater = LayoutInflater.from(context);
@@ -105,15 +101,36 @@ public class RecipeListAdapter extends SimpleCursorAdapter {
         }
         view.setLayoutParams(params);
 
+        SquareImageView image = (SquareImageView) view.findViewById(R.id.list_item_image);
+        TextView difficulty = (TextView) view.findViewById(R.id.list_item_difficulty);
+        TextView prepTime = (TextView) view.findViewById(R.id.list_item_prep_time);
+        TextView likes = (TextView) view.findViewById(R.id.list_item_likes);
+        TextView title = (TextView) view.findViewById(R.id.list_item_recipe_title);
+
+        ViewHolder holder = new ViewHolder(image, difficulty, title, prepTime, likes);
+
+        view.setTag(holder);
+
         return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
-        super.bindView(view, context, cursor);
+        ViewHolder holder = (ViewHolder) view.getTag();
 
-        ImageView image = (ImageView) view.findViewById(R.id.list_item_image);
+        holder.prepTimeView
+                .setText(cursor.getInt(cursor.getColumnIndex(DbColumns.Recipe.PREP_TIME)) + "min");
+
+        String difficulty =
+                Constants.DIFFICULTIES.get(
+                        cursor.getInt(cursor.getColumnIndex(DbColumns.Recipe.DIFFICULTY)));
+
+        holder.difficultyView.setText(difficulty);
+
+        holder.titleView.setText(cursor.getString(cursor.getColumnIndex(DbColumns.Recipe.TITLE)));
+
+        holder.likesView.setText(String.valueOf(cursor.getInt(cursor.getColumnIndex(DbColumns.Recipe.LIKES))));
 
         String imageUrl = cursor.getString(cursor.getColumnIndex(DbColumns.Recipe.IMAGE_URL));
 
@@ -121,6 +138,22 @@ public class RecipeListAdapter extends SimpleCursorAdapter {
                 .load(imageUrl)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                .into(image);
+                .into(holder.imageView);
+    }
+
+    private static class ViewHolder {
+        SquareImageView imageView;
+        TextView difficultyView;
+        TextView titleView;
+        TextView prepTimeView;
+        TextView likesView;
+
+        public ViewHolder(SquareImageView image, TextView difficulty, TextView title, TextView prepTime, TextView likes){
+            imageView = image;
+            difficultyView = difficulty;
+            titleView = title;
+            prepTimeView = prepTime;
+            likesView = likes;
+        }
     }
 }

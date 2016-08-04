@@ -4,11 +4,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ListView;
 
 import com.activeandroid.Cache;
 import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
+
+import java.util.List;
 
 import co.bstorm.aleksa.recipes.R;
 import co.bstorm.aleksa.recipes.constants.Constants;
@@ -20,7 +23,6 @@ import co.bstorm.aleksa.recipes.ui.adapter.DetailListAdapter;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
@@ -30,6 +32,8 @@ import rx.schedulers.Schedulers;
  * Used to display details of a single recipe
  */
 public class DetailActivity extends AppCompatActivity {
+
+    private static final String TAG = "DetailActivity";
 
     private DetailListAdapter mDetailsAdapter;
 
@@ -65,6 +69,12 @@ public class DetailActivity extends AppCompatActivity {
      */
     private void initializeUI(final long recipeId, final String recipeTitle, final String imageUrl, final String servingSize){
 
+        List<Recipe.Ingredient> list =  new Select().from(Recipe.Ingredient.class).where(DbColumns.Ingredient.RECIPE_ID + " = ?", 2379).execute();
+        for (Recipe.Ingredient item:
+             list) {
+            Log.e(TAG, String.valueOf(item.getQuantity()));
+        }
+
         Observable<Cursor> ingredientObservable = Observable.create(new Observable.OnSubscribe<Cursor>() {
             @Override
             public void call(Subscriber<? super Cursor> subscriber) {
@@ -92,8 +102,10 @@ public class DetailActivity extends AppCompatActivity {
 
                 Cursor cursor = Cache.openDatabase().rawQuery(query.toSql(), query.getArguments());
 
-                // TODO if empty or shit
-                subscriber.onNext(cursor);
+                if (cursor == null || cursor.getCount() == 0)
+                    subscriber.onError(new Throwable());
+                else
+                    subscriber.onNext(cursor);
             }
         });
 
@@ -106,9 +118,20 @@ public class DetailActivity extends AppCompatActivity {
                 }
         ).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<DetailListAdapter>() {
+                .subscribe(new Subscriber<DetailListAdapter>() {
                     @Override
-                    public void call(DetailListAdapter detailListAdapter) {
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "Error loading from DB", e);
+                        DetailActivity.this.finish();
+                    }
+
+                    @Override
+                    public void onNext(DetailListAdapter detailListAdapter) {
                         mDetailsAdapter = detailListAdapter;
                         mDetails.setAdapter(detailListAdapter);
                     }

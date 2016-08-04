@@ -12,6 +12,13 @@ public class Constants {
     public static final String IMAGE_URL_EXTRA = "image_url";
     public static final String SERVINGS_EXTRA = "servings";
 
+    public static final HashMap<Integer, String> DIFFICULTIES = new HashMap<>();
+    static {
+        DIFFICULTIES.put(0, "EASY"); // TODO extract to strings
+        DIFFICULTIES.put(1, "MEDIUM");
+        DIFFICULTIES.put(2, "DIFFICULT");
+    }
+
 
     public static class APIConstants {
 
@@ -36,7 +43,7 @@ public class Constants {
         public static final HashMap<String, String> MEASURE_MAP = new HashMap<>();
 
         static {
-            MEASURE_MAP.put(QUANTITY_TYPE_WEIGHT, WEIGHT_UNIT_GRAM);
+            MEASURE_MAP.put(QUANTITY_TYPE_WEIGHT, WEIGHT_UNIT_KILOGRAM);
             MEASURE_MAP.put(QUANTITY_TYPE_VOLUME, VOLUME_UNIT);
             MEASURE_MAP.put(QUANTITY_TYPE_NUMBER, NUMBER_UNIT);
         }

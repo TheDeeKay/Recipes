@@ -23,7 +23,8 @@
             co.bstorm.aleksa.recipes.pojo.Tag,
             co.bstorm.aleksa.recipes.pojo.TagCategory"/>
 
-        <activity android:name=".ui.MainActivity">
+        <activity android:name=".ui.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,7 +32,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.DetailActivity"/>
+        <activity android:name=".ui.DetailActivity"
+            android:screenOrientation="portrait"/>
         
         <provider
             android:authorities="co.bstorm.aleksa.recipes"
