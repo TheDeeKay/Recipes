@@ -10,19 +10,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <meta-data android:name="co.bstorm.aleksa.recipes.libs.glide.MyGlideModule" android:value="GlideModule" />
-        <meta-data android:name="AA_DB_NAME" android:value="Bstorm.db"/>
-        <meta-data android:name="AA_DB_VERSION" android:value="1"/>
-        <meta-data android:name="AA_MODELS"
-            android:value="
-            co.bstorm.aleksa.recipes.pojo.Component,
-            co.bstorm.aleksa.recipes.pojo.Recipe,
-            co.bstorm.aleksa.recipes.pojo.Recipe$Ingredient,
-            co.bstorm.aleksa.recipes.pojo.RecipeTag,
-            co.bstorm.aleksa.recipes.pojo.Step,
-            co.bstorm.aleksa.recipes.pojo.Tag,
-            co.bstorm.aleksa.recipes.pojo.TagCategory"/>
-
         <activity android:name=".ui.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -34,11 +21,6 @@
 
         <activity android:name=".ui.DetailActivity"
             android:screenOrientation="portrait"/>
-        
-        <provider
-            android:authorities="co.bstorm.aleksa.recipes"
-            android:exported="false"
-            android:name="com.activeandroid.content.ContentProvider"/>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET"/>

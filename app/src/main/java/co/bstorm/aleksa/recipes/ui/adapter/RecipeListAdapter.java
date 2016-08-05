@@ -1,15 +1,13 @@
 package co.bstorm.aleksa.recipes.ui.adapter;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Point;
-import android.support.v4.widget.CursorAdapter;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -17,40 +15,28 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import co.bstorm.aleksa.recipes.R;
 import co.bstorm.aleksa.recipes.constants.Constants;
-import co.bstorm.aleksa.recipes.constants.DbColumns;
+import co.bstorm.aleksa.recipes.pojo.Recipe;
 import co.bstorm.aleksa.recipes.ui.widget.SquareImageView;
+import io.realm.OrderedRealmCollection;
+import io.realm.RealmBaseAdapter;
 
 /**
  * Created by aleksa on 7/30/16.
  *
  * An adapter to represent main Recipe data
  */
-public class RecipeListAdapter extends CursorAdapter {
+public class RecipeListAdapter extends RealmBaseAdapter<Recipe> {
 
     private static final String TAG = "RecipeListAdapter";
 
-    private static String from[] = new String[]{
-            DbColumns.Recipe.TITLE,
-            DbColumns.Recipe.LIKES,
-    };
-    private static int to[] = new int[]{
-            R.id.list_item_recipe_title,
-            R.id.list_item_likes
-    };
+    private static final String PREP_TIME_FORMAT = "%d min";
 
-    Cursor data;
     LayoutInflater inflater;
 
     int screenWidth;
 
-    public RecipeListAdapter(Context context, Cursor c){
-        this(context, c, 0);
-    }
-
-    public RecipeListAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags);
-
-        data = c;
+    public RecipeListAdapter(Context context, OrderedRealmCollection<Recipe> data) {
+        super(context, data);
         inflater = LayoutInflater.from(context);
 
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -60,85 +46,55 @@ public class RecipeListAdapter extends CursorAdapter {
         screenWidth = size.x;
     }
 
-    @Override
-    public long getItemId(int position) {
-        if (getCursor() == null)
-            return 0;
-        getCursor().moveToPosition(position);
-        return getCursor().getLong(getCursor().getColumnIndex(DbColumns.Recipe.REMOTE_ID));
-    }
-
-    public String getRecipeTitle(int position){
-        if (getCursor() == null)
-            return "";
-        getCursor().moveToPosition(position);
-        return getCursor().getString(getCursor().getColumnIndex(DbColumns.Recipe.TITLE));
-    }
-
-    public String getImageUrl(int position){
-        if (getCursor() == null)
-            return "";
-        getCursor().moveToPosition(position);
-        return getCursor().getString(getCursor().getColumnIndex(DbColumns.Recipe.IMAGE_URL));
-    }
-
-    public int getServings(int position){
-        if (getCursor() == null)
-            return 0;
-        getCursor().moveToPosition(position);
-        return getCursor().getInt(getCursor().getColumnIndex(DbColumns.Recipe.SERVING_SIZE));
-    }
 
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view = inflater.inflate(R.layout.recipe_list_item, null);
+    public View getView(int position, View convertView, ViewGroup parent) {
 
-        ViewGroup.LayoutParams params = view.getLayoutParams();
-        if (params == null) {
-            params = new RelativeLayout.LayoutParams(screenWidth, screenWidth);
-        } else {
-            params.height = screenWidth;
+        ViewHolder holder;
+
+        if (convertView == null) {
+            convertView = inflater.inflate(R.layout.recipe_list_item, null);
+
+            ListView.LayoutParams params = (ListView.LayoutParams) convertView.getLayoutParams();
+            if (params == null) {
+                params = new ListView.LayoutParams(screenWidth, screenWidth);
+            } else {
+                params.height = screenWidth;
+            }
+            convertView.setLayoutParams(params);
+
+            holder = new ViewHolder();
+
+            holder.titleView = (TextView) convertView.findViewById(R.id.list_item_recipe_title);
+            holder.likesView = (TextView) convertView.findViewById(R.id.list_item_likes);
+            holder.difficultyView = (TextView) convertView.findViewById(R.id.list_item_difficulty);
+            holder.prepTimeView = (TextView) convertView.findViewById(R.id.list_item_prep_time);
+            holder.imageView = (SquareImageView) convertView.findViewById(R.id.list_item_image);
+
+            convertView.setTag(holder);
         }
-        view.setLayoutParams(params);
+        else {
+            holder = (ViewHolder) convertView.getTag();
+        }
 
-        SquareImageView image = (SquareImageView) view.findViewById(R.id.list_item_image);
-        TextView difficulty = (TextView) view.findViewById(R.id.list_item_difficulty);
-        TextView prepTime = (TextView) view.findViewById(R.id.list_item_prep_time);
-        TextView likes = (TextView) view.findViewById(R.id.list_item_likes);
-        TextView title = (TextView) view.findViewById(R.id.list_item_recipe_title);
+        Recipe recipe = adapterData.get(position);
 
-        ViewHolder holder = new ViewHolder(image, difficulty, title, prepTime, likes);
-
-        view.setTag(holder);
-
-        return view;
-    }
-
-    @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-
-        ViewHolder holder = (ViewHolder) view.getTag();
-
-        holder.prepTimeView
-                .setText(cursor.getInt(cursor.getColumnIndex(DbColumns.Recipe.PREP_TIME)) + "min");
-
-        String difficulty =
-                Constants.DIFFICULTIES.get(
-                        cursor.getInt(cursor.getColumnIndex(DbColumns.Recipe.DIFFICULTY)));
-
-        holder.difficultyView.setText(difficulty);
-
-        holder.titleView.setText(cursor.getString(cursor.getColumnIndex(DbColumns.Recipe.TITLE)));
-
-        holder.likesView.setText(String.valueOf(cursor.getInt(cursor.getColumnIndex(DbColumns.Recipe.LIKES))));
-
-        String imageUrl = cursor.getString(cursor.getColumnIndex(DbColumns.Recipe.IMAGE_URL));
-
+        holder.titleView.setText(recipe.getTitle());
+        holder.difficultyView.setText(Constants.DIFFICULTIES.get(recipe.getDifficulty()));
+        holder.prepTimeView.setText(String.format(PREP_TIME_FORMAT, recipe.getPreparationTime()));
+        holder.likesView.setText(String.valueOf(recipe.getLikes()));
         Glide.with(context)
-                .load(imageUrl)
+                .load(recipe.getImageUrl())
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.RESULT)
                 .into(holder.imageView);
+
+        return convertView;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return adapterData.get(position).getId();
     }
 
     private static class ViewHolder {
@@ -147,13 +103,5 @@ public class RecipeListAdapter extends CursorAdapter {
         TextView titleView;
         TextView prepTimeView;
         TextView likesView;
-
-        public ViewHolder(SquareImageView image, TextView difficulty, TextView title, TextView prepTime, TextView likes){
-            imageView = image;
-            difficultyView = difficulty;
-            titleView = title;
-            prepTimeView = prepTime;
-            likesView = likes;
-        }
     }
 }

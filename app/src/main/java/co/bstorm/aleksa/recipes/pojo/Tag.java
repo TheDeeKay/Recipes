@@ -1,43 +1,32 @@
 package co.bstorm.aleksa.recipes.pojo;
 
-import android.provider.BaseColumns;
-
-import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import co.bstorm.aleksa.recipes.constants.DbColumns;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by aleksa on 7/30/16.
+ *
+ * Represents a tag listed in recipe. A tag belongs to a certain tag category
+ * TODO
  */
-@Table(name = DbColumns.Tag.TABLE_NAME, id = BaseColumns._ID)
-public class Tag extends Model{
+public class Tag extends RealmObject {
 
-    @Column(name = DbColumns.Tag.REMOTE_ID, unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
-    @Expose
+    @PrimaryKey
     @SerializedName("id")
-    private int remoteId;
-    @Column(name = DbColumns.Tag.NAME)
-    @Expose
+    private int id;
     @SerializedName("name")
     private String name;
-    @Column(name = DbColumns.Tag.TAG_CATEGORY_ID)
-    @Expose
     @SerializedName("tag_category_id")
     private int tagCategoryId;
 
-    public Tag() {
+    public int getId() {
+        return id;
     }
 
-    public int getRemoteId() {
-        return remoteId;
-    }
-
-    public void setRemoteId(int id) {
-        this.remoteId = id;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {

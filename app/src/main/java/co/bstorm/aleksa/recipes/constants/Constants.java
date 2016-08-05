@@ -8,15 +8,12 @@ import java.util.HashMap;
 public class Constants {
 
     public static final String RECIPE_ID_EXTRA = "recipe_id";
-    public static final String RECIPE_TITLE_EXTRA = "recipe_title";
-    public static final String IMAGE_URL_EXTRA = "image_url";
-    public static final String SERVINGS_EXTRA = "servings";
 
     public static final HashMap<Integer, String> DIFFICULTIES = new HashMap<>();
     static {
         DIFFICULTIES.put(0, "EASY"); // TODO extract to strings
         DIFFICULTIES.put(1, "MEDIUM");
-        DIFFICULTIES.put(2, "DIFFICULT");
+        DIFFICULTIES.put(2, "HARD");
     }
 
 

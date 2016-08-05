@@ -9,9 +9,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.bstorm.aleksa.recipes.libs.retrofit.RecipesApiInterface;
 import co.bstorm.aleksa.recipes.constants.Constants;
 import co.bstorm.aleksa.recipes.libs.gson.MyDeserializer;
+import co.bstorm.aleksa.recipes.libs.retrofit.RecipesApiInterface;
 import co.bstorm.aleksa.recipes.pojo.Component;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
 import co.bstorm.aleksa.recipes.pojo.Tag;

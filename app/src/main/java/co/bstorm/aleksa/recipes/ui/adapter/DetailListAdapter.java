@@ -2,7 +2,6 @@ package co.bstorm.aleksa.recipes.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,17 +13,21 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import co.bstorm.aleksa.recipes.R;
 import co.bstorm.aleksa.recipes.constants.Constants;
-import co.bstorm.aleksa.recipes.constants.DbColumns;
+import co.bstorm.aleksa.recipes.pojo.Component;
+import co.bstorm.aleksa.recipes.pojo.Ingredient;
+import co.bstorm.aleksa.recipes.pojo.Recipe;
+import co.bstorm.aleksa.recipes.pojo.Step;
+import io.realm.RealmBaseAdapter;
 
 /**
  * Created by aleksa on 8/4/16.
  *
- * A monstrous adapter that takes 5 types of views and makes them all a single ListView (so it can be scrolled nicely)
+ * An adapter that uses 5 types of views and makes them all a single ListView (so it can be scrolled nicely)
  *
- * This is absolutely not the best way to go, but due to lack of time this has to stay
- * It handles way too many things and knows way too much (it doesn't get much more opposite to Jon Snow than this)
+ * While this is most certainly not the most elegant way to go about this (code-wise)
+ * it does provide a natural UI experience
  */
-public class DetailListAdapter extends CursorAdapter {
+public class DetailListAdapter extends RealmBaseAdapter {
 
     private static final int INGREDIENT = 0;
     private static final int STEP = 1;
@@ -34,36 +37,24 @@ public class DetailListAdapter extends CursorAdapter {
 
     private LayoutInflater inflater;
 
-    Cursor ingredients;
-    Cursor steps;
+    private Recipe recipe;
 
-    String imageUrl;
-    String recipeTitle;
-    String servingSize;
-
-    public DetailListAdapter(Context context, Cursor ingredients, Cursor steps,
-                             String recipeTitle, String imageUrl, String servingSize){
-        super(context, ingredients, 0);
+    public DetailListAdapter(Context context, Recipe recipe) {
+        super(context, null);
         inflater = LayoutInflater.from(context);
-
-        this.ingredients = ingredients;
-        this.steps = steps;
-
-        this.imageUrl = imageUrl;
-        this.recipeTitle = recipeTitle;
-        this.servingSize = servingSize;
+        this.recipe = recipe;
     }
+
 
     @Override
     public int getCount() {
-        int stepsCount = 0;
-        int ingredientsCount = 0;
-        if (steps != null)
-            stepsCount = steps.getCount();
-        if (ingredients != null)
-            ingredientsCount = ingredients.getCount();
+        int count = 3;
+        if (recipe.getSteps() != null)
+            count += recipe.getSteps().size();
+        if (recipe.getIngredients() != null)
+            count += recipe.getIngredients().size();
 
-        return stepsCount + ingredientsCount + 3;
+        return count;
     }
 
     @Override
@@ -80,38 +71,41 @@ public class DetailListAdapter extends CursorAdapter {
             return IMAGE;
         if (position == 1)
             return INGREDIENT_SEPARATOR;
-        if (position - 2 < ingredients.getCount())
+        if (position - 2 < recipe.getIngredients().size())
             return INGREDIENT;
-        if (position == 2 + ingredients.getCount())
+        if (position == 2 + recipe.getIngredients().size())
             return STEP_SEPARATOR;
         return STEP;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         switch (getItemViewType(position)){
             case INGREDIENT: {
-                convertView = newIngredientView(parent.getContext(), ingredients, parent);
-                ingredients.moveToPosition(position - 2);
-                bindIgredientView(convertView, parent.getContext(), ingredients);
+                convertView = newIngredientView();
+                bindIgredientView(convertView, position);
                 return convertView;
             }
             case STEP: {
-                convertView = newStepView(parent.getContext(), steps, parent);
-                steps.moveToPosition(position - ingredients.getCount() - 3);
-                bindStepView(convertView, parent.getContext(), steps);
+                convertView = newStepView();
+                bindStepView(convertView, position);
                 return convertView;
             }
             case IMAGE: {
                 convertView = newImageView(parent.getContext(), null, parent);
-                bindImageView(convertView, parent.getContext(), null);
+                bindImageView(convertView, parent.getContext());
                 return convertView;
             }
             case INGREDIENT_SEPARATOR: {
                 convertView = inflater.inflate(R.layout.ingredient_separator, null);
+
                 ((TextView)convertView.findViewById(R.id.ingredient_separator_servings))
-                        .setText(servingSize);
+                        .setText(String.format(parent.getContext().getString(R.string.serving_size_format),
+                                recipe.getDefaultServingSize()));
+
                 return convertView;
+
             }
             case STEP_SEPARATOR: {
                 convertView = inflater.inflate(R.layout.step_separator, null);
@@ -121,36 +115,26 @@ public class DetailListAdapter extends CursorAdapter {
         }
     }
 
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return null;
-    }
-
-    @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-
-    }
-
-    private View newIngredientView(Context context, Cursor cursor, ViewGroup parent) {
+    private View newIngredientView() {
         View view = inflater.inflate(R.layout.ingredient_list_item, null);
 
-        TextView amount = (TextView) view.findViewById(R.id.ingredient_item_amount);
-        TextView component = (TextView) view.findViewById(R.id.ingredient_item_component);
+        IngredientViewHolder holder = new IngredientViewHolder();
 
-        IngredientViewHolder holder = new IngredientViewHolder(amount, component);
+        holder.amountView = (TextView) view.findViewById(R.id.ingredient_item_amount);
+        holder.componentView = (TextView) view.findViewById(R.id.ingredient_item_component);
 
         view.setTag(holder);
 
         return view;
     }
 
-    private View newStepView(Context context, Cursor cursor, ViewGroup parent) {
+    private View newStepView() {
         View view = inflater.inflate(R.layout.step_list_item, null);
 
-        TextView number = (TextView) view.findViewById(R.id.step_item_number);
-        TextView description = (TextView) view.findViewById(R.id.step_item_description);
+        StepViewHolder holder = new StepViewHolder();
 
-        StepViewHolder holder = new StepViewHolder(number, description);
+        holder.descriptionView = (TextView) view.findViewById(R.id.step_item_description);
+        holder.numberView = (TextView) view.findViewById(R.id.step_item_number);
 
         view.setTag(holder);
 
@@ -160,28 +144,32 @@ public class DetailListAdapter extends CursorAdapter {
     private View newImageView(Context context, Cursor cursor, ViewGroup parent){
         View view = inflater.inflate(R.layout.detail_image_title, null);
 
-        TextView title = (TextView) view.findViewById(R.id.details_recipe_name);
-        ImageView image = (ImageView) view.findViewById(R.id.details_image);
+        ImageViewHolder holder = new ImageViewHolder();
 
-        ImageViewHolder holder = new ImageViewHolder(title, image);
+        holder.title = (TextView) view.findViewById(R.id.details_recipe_name);
+        holder.image = (ImageView) view.findViewById(R.id.details_image);
 
         view.setTag(holder);
 
         return view;
     }
 
-    private void bindIgredientView(View view, Context context, Cursor cursor){
+    private void bindIgredientView(View view, int position){
         IngredientViewHolder holder = (IngredientViewHolder) view.getTag();
 
-        float amount = cursor.getFloat(cursor.getColumnIndex(DbColumns.Ingredient.QUANTITY));
+        Ingredient ingredient = recipe.getIngredients().get(position - 2);
+
+        float amount = ingredient.getQuantity();
 
         String amountText;
+
+        Component component = ingredient.getComponent();
 
         if (amount == 0)
             amountText = "";
         else {
-            String quantityType = cursor.getString(cursor.getColumnIndex(DbColumns.Component.QUANTITY_TYPE));
-            String preferredMeasure = cursor.getString(cursor.getColumnIndex(DbColumns.Ingredient.PREFERRED_MEASURE));
+            String quantityType = (component != null) ? component.getQuantityType() : "";
+            String preferredMeasure = ingredient.getPreferredMeasure();
 
             // Remove trailing zeros if possible
             if ((int) amount == amount)
@@ -192,30 +180,32 @@ public class DetailListAdapter extends CursorAdapter {
 
         holder.amountView.setText(amountText.trim());
 
-        holder.componentView.setText(cursor.getString(cursor.getColumnIndex(DbColumns.Component.NAME)));
+        holder.componentView.setText(component != null ? component.getName() : "");
     }
 
-    private void bindImageView(View view, Context context, Cursor cursor){
+    private void bindImageView(View view, Context context){
 
         ImageViewHolder holder = (ImageViewHolder) view.getTag();
 
-        holder.title.setText(recipeTitle);
+        holder.title.setText(recipe.getTitle());
 
         Glide.with(context)
-                .load(imageUrl)
+                .load(recipe.getImageUrl())
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.RESULT)
                 .into(holder.image);
     }
 
-    private void bindStepView(View view, Context context, Cursor cursor){
+    private void bindStepView(View view, int position){
 
         StepViewHolder holder = (StepViewHolder) view.getTag();
 
-        int number = cursor.getInt(cursor.getColumnIndex(DbColumns.Step.SEQUENCE_INDEX)) + 1;
+        Step step = recipe.getSteps().get(position - 3 - recipe.getIngredients().size());
+
+        int number = step.getSequenceIndex() + 1;
 
         holder.numberView.setText(String.valueOf(number));;
-        holder.descriptionView.setText(cursor.getString(cursor.getColumnIndex(DbColumns.Step.TEXT)));
+        holder.descriptionView.setText(step.getText());
     }
 
 
@@ -242,33 +232,17 @@ public class DetailListAdapter extends CursorAdapter {
 
     private static class IngredientViewHolder {
 
-        public TextView amountView;
-        public TextView componentView;
-
-        public IngredientViewHolder(TextView amount, TextView component){
-            amountView = amount;
-            componentView = component;
-        }
-
+        TextView amountView;
+        TextView componentView;
     }
 
     private static class StepViewHolder {
         TextView numberView;
         TextView descriptionView;
-
-        public StepViewHolder(TextView number, TextView description){
-            numberView = number;
-            descriptionView = description;
-        }
     }
 
     private static class ImageViewHolder {
         TextView title;
         ImageView image;
-
-        public ImageViewHolder(TextView title, ImageView image){
-            this.title = title;
-            this.image = image;
-        }
     }
 }

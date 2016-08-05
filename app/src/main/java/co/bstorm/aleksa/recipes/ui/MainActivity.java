@@ -1,10 +1,6 @@
 package co.bstorm.aleksa.recipes.ui;
 
-import android.app.LoaderManager;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,164 +8,107 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.activeandroid.ActiveAndroid;
-import com.activeandroid.content.ContentProvider;
-import com.activeandroid.query.Select;
-
 import java.util.ArrayList;
 
 import co.bstorm.aleksa.recipes.R;
 import co.bstorm.aleksa.recipes.api.API;
 import co.bstorm.aleksa.recipes.constants.Constants;
-import co.bstorm.aleksa.recipes.pojo.Component;
+import co.bstorm.aleksa.recipes.pojo.Ingredient;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
-import co.bstorm.aleksa.recipes.pojo.RecipeTag;
 import co.bstorm.aleksa.recipes.ui.adapter.RecipeListAdapter;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MainActivity extends AppCompatActivity{
 
+    private static final String TAG = "MainActivity";
+
+    Realm realm;
     RecipeListAdapter mAdapter;
+    RealmChangeListener<RealmResults<Recipe>> changeListener;
+    RealmResults<Recipe> recipes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // TODO refactor this
+        realm = Realm.getDefaultInstance();
+
         API.getAllRecipes()
-                .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<ArrayList<Recipe>>() {
                     @Override
                     public void onCompleted() {
-                        Log.e("TAG", "Finished first");
-                        Recipe recipe = new Select().from(Recipe.class).orderBy("RANDOM()").executeSingle();
-                        if (recipe != null)
-                            Log.e("Finished inserting", recipe.getTitle() /*String.valueOf(recipe.getTags().get(0).getRemoteId())*/);
-                        else
-                            Log.e("Finished inserting", "Nope.js");
+                        Log.d(TAG, "Successfully finished fetch and insert");
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        Log.e(TAG, "Encountered error during fetch/insert", e);
                     }
 
                     @Override
                     public void onNext(ArrayList<Recipe> recipes) {
-                        Recipe recipe;
-                        ActiveAndroid.beginTransaction();
-                        try {
-                            int size = recipes.size();
-                            for (int i = 0; i < size; i++) {
-                                recipe = recipes.get(i);
-
-                                int tagSize = recipe.getTags().size();
-                                for (int j = 0; j < tagSize; j++) {
-                                    new RecipeTag(recipe.getRemoteId(), recipe.getTags().get(j).getRemoteId()).save();
-                                    recipe.getTags().get(j).save();
-                                }
-
-                                int stepSize = recipe.getSteps().size();
-                                for (int j = 0; j < stepSize; j++) {
-                                    recipe.getSteps().get(j).setRecipeId(recipe.getRemoteId());
-                                    recipe.getSteps().get(j).save();
-                                }
-
-                                int ingredientSize = recipe.getIngredients().size();
-                                for (int j = 0; j < ingredientSize; j++) {
-                                    recipe.getIngredients().get(j).setRecipeId(recipe.getRemoteId());
-                                    recipe.getIngredients().get(j).save();
-                                }
-
-                                recipe.save();
-                        }
-                            ActiveAndroid.setTransactionSuccessful();
-                        }
-                        finally {
-                            ActiveAndroid.endTransaction();
-                        }
-                    }
-                });
-
-        API.getAllComponents()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(new Subscriber<ArrayList<Component>>() {
-                    @Override
-                    public void onCompleted() {
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e("getAllComponents", "Error: " + e.getMessage());
-                    }
-
-                    @Override
-                    public void onNext(ArrayList<Component> components) {
-                        ActiveAndroid.beginTransaction();
-                        try {
-                            Component component;
-                            int size = components.size();
-                            for (int i = 0; i < size; i++) {
-                                component = components.get(i);
-
-                                component.save();
+                        Realm realm = Realm.getInstance(new RealmConfiguration.Builder(MainActivity.this).build());
+                        realm.beginTransaction();
+                        for (Recipe recipe :
+                                recipes) {
+                            for (Ingredient ingredient :
+                                    recipe.getIngredients()) {
+                                ingredient.setRecipeId(recipe.getId());
+                                ingredient.setUniqueId();
                             }
-                            ActiveAndroid.setTransactionSuccessful();
                         }
-                        finally {
-                            ActiveAndroid.endTransaction();
-                        }
+                        realm.copyToRealmOrUpdate(recipes);
+                        realm.commitTransaction();
+                        realm.close();
                     }
                 });
 
+        recipes = realm.where(Recipe.class).findAll();
 
-        final ListView recipesList = (ListView) findViewById(R.id.recipes_list);
-
-        // TODO extract those into constants (column names)
-        mAdapter = new RecipeListAdapter(this, null);
+        ListView recipesList = (ListView) findViewById(R.id.recipes_list);
+        mAdapter = new RecipeListAdapter(this, recipes);
         recipesList.setAdapter(mAdapter);
+
+        changeListener = new RealmChangeListener<RealmResults<Recipe>>() {
+            @Override
+            public void onChange(RealmResults<Recipe> element) {
+                mAdapter.notifyDataSetChanged();
+            }
+        };
+        recipes.addChangeListener(changeListener);
 
         recipesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                launchDetails(id, mAdapter.getRecipeTitle(position), mAdapter.getImageUrl(position), mAdapter.getServings(position));
+                launchDetails(id);
             }
         });
-
-        getLoaderManager().initLoader(0, null, this);
     }
 
     /** TODO this will change when master/detail is implemented
      * Launches the details activity for the given recipe ID
      * @param id ID of the recipe whose details we want
      */
-    private void launchDetails(long id, String recipeTitle, String imageUrl, int servings){
+    private void launchDetails(long id){
         Intent detailsIntent = new Intent(this, DetailActivity.class);
         detailsIntent.putExtra(Constants.RECIPE_ID_EXTRA, id);
-        detailsIntent.putExtra(Constants.RECIPE_TITLE_EXTRA, recipeTitle);
-        detailsIntent.putExtra(Constants.IMAGE_URL_EXTRA, imageUrl);
-        detailsIntent.putExtra(Constants.SERVINGS_EXTRA, servings);
         startActivity(detailsIntent);
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(this,
-                ContentProvider.createUri(Recipe.class, null),
-                null, null, null, null
-                );
-    }
+    protected void onDestroy() {
+        super.onDestroy();
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAdapter.swapCursor(data);
-    }
+        recipes.removeChangeListener(changeListener);
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
+        realm.close();
     }
 }
