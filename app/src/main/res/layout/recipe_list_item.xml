@@ -44,7 +44,8 @@
         style="@style/RecipeListText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/list_item_prep_time"/>
+        android:layout_above="@+id/list_item_prep_time"
+        android:layout_marginLeft="10dp"/>
 
     <TextView
         android:id="@+id/list_item_prep_time"

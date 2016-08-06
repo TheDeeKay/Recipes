@@ -29,6 +29,7 @@ public class RecipeListAdapter extends RealmBaseAdapter<Recipe> {
 
     private static final String TAG = "RecipeListAdapter";
 
+    // A string representing format in which preparation time should be displayed
     private static final String PREP_TIME_FORMAT = "%d min";
 
     LayoutInflater inflater;

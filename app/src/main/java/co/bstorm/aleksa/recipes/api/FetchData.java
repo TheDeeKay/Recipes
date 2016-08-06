@@ -16,6 +16,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -35,13 +36,14 @@ public class FetchData {
 
     private static final String TAG = "FetchData";
 
+    // Use this as a form of singleton since we always use the same retryWhen strategy
     private static Func1<Observable<? extends Throwable>, Observable<?>> retryWhenFunc = null;
 
     // Used to avoid duplicating network error toasts
     private static Toast toast = null;
 
     /**
-     * Fetches data using a given observable
+     * Fetches data using a given observable and returns its subscription
      *
      * @param observable An observable that fetches and emits fetched data
      * @param context A context used to observe network changes and get Realm instance
@@ -49,45 +51,41 @@ public class FetchData {
      */
     public static <T extends RealmObject> Subscription
     fetchDataFromObservable(Observable<ArrayList<T>> observable, final Context context) {
-        return observable
-                .retryWhen(getRetryWhenFunc(context))
-//                .retry()
-                .observeOn(Schedulers.io())
+
+        final Observer<ArrayList<T>> observer = getObserverInterface(observable, context);
+
+        return prepareObservable(observable, context)
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<ArrayList<T>>() {
                     @Override
                     public void onCompleted() {
-                        Log.d(TAG, "Successfully finished fetch and insert of recipes");
+                        observer.onCompleted();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, "Encountered error during fetch/insert", e);
-                        if (e instanceof ConnectException)
-                            makeMissingConnectionToast(context);
+                        observer.onError(e);
                     }
 
                     @Override
                     public void onNext(ArrayList<T> items) {
-                        Realm realm = Realm.getInstance(new RealmConfiguration.Builder(context).build());
-                        realm.beginTransaction();
-
-                        // If we're getting recipes, we need to initialize Ingredient primary key
-                        // TODO if there's time, extract this somewhere for better modularity
-                        if (items != null && items.size() > 0 && (items.get(0).getClass().equals(Recipe.class)))
-                            for (Recipe recipe :
-                                    (ArrayList<Recipe>)items) {
-                                for (Ingredient ingredient :
-                                        recipe.getIngredients()) {
-                                    ingredient.setRecipeId(recipe.getId());
-                                    ingredient.setUniqueId();
-                                }
-                            }
-                        realm.copyToRealmOrUpdate(items);
-                        realm.commitTransaction();
-                        realm.close();
+                        observer.onNext(items);
                     }
                 });
+    }
+
+    /**
+     * Prepares an observable by specifying retry strategy and threading
+     *
+     * @param observable The observable to prepare
+     * @param context A context used with the observable
+     * @return Prepared observable
+     */
+    public static <T extends RealmObject> Observable<ArrayList<T>> prepareObservable(Observable<ArrayList<T>> observable, Context context){
+        return observable
+                .retryWhen(getRetryWhenFunc(context))
+                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io());
     }
 
     /**
@@ -100,10 +98,54 @@ public class FetchData {
         }
     }
 
+    /**
+     * Creates an Observer interface for inserting data into Realm
+     *
+     * @return the Observer with the right methods to insert data
+     */
+    public static <T extends RealmObject> Observer<ArrayList<T>> getObserverInterface(
+            final Observable<ArrayList<T>> observable, final Context context){
+        return new Observer<ArrayList<T>>() {
+            @Override
+            public void onCompleted() {
+                Log.d(TAG, "Successfully finished fetch and insert");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e(TAG, "Encountered error during fetch/insert",e);
+                if (e instanceof ConnectException)
+                    makeMissingConnectionToast(context);
+            }
+
+            @Override
+            public void onNext(ArrayList<T> items) {
+                Realm realm = Realm.getInstance(new RealmConfiguration.Builder(context).build());
+                realm.beginTransaction();
+
+                // If we're getting recipes, we need to initialize Ingredient primary key
+                if (items != null && items.size() > 0 && (items.get(0).getClass().equals(Recipe.class))) {
+                    for (Recipe recipe :
+                            (ArrayList<Recipe>)items) {
+                        for (Ingredient ingredient :
+                                recipe.getIngredients()) {
+                            ingredient.setRecipeId(recipe.getId());
+                            ingredient.setUniqueId();
+                        }
+                    }
+                }
+                realm.copyToRealmOrUpdate(items);
+                realm.commitTransaction();
+                realm.close();
+                Log.e(TAG, "Successfully fetched and inserted/updated " + items.size() + " items");
+            }
+        };
+    }
+
     /** A function that's used to properly retry fetching data
      * Uses an observable that notifies us of network changes to decide when to trigger retry
      *
-     * @param context the Context that is used to
+     * @param context the Context that is used to display Toast (the no-network error)
      */
     private static Func1<Observable<? extends Throwable>, Observable<?>> getRetryWhenFunc(final Context context){
 
@@ -113,7 +155,14 @@ public class FetchData {
                 @Override
                 public Observable<?> call(final Observable<? extends Throwable> observable) {
 
+                    // Use this to display the no-network message (because onError won't trigger when there's retry)
                     observable
+                            .filter(new Func1<Throwable, Boolean>() {
+                                @Override
+                                public Boolean call(Throwable throwable) {
+                                    return throwable.getClass().equals(ConnectException.class);
+                                }
+                            })
                             .take(1)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Action1<Throwable>() {
@@ -124,17 +173,23 @@ public class FetchData {
                             });
 
                     return observable
-                            // emit only when the error is due to no network connection
-                            .filter(new Func1<Throwable, Boolean>() {
-                                @Override
-                                public Boolean call(Throwable throwable) {
-                                    return throwable.getClass().equals(ConnectException.class);
-                                }
-                            })
                             .flatMap(new Func1<Throwable, Observable<?>>() {
                                 @Override
                                 public Observable<?> call(Throwable throwable) {
-                                    return Observable.timer(5000, TimeUnit.MILLISECONDS);
+
+                                    // If there is no network, start retrying
+                                    if (throwable.getClass().equals(ConnectException.class)) {
+                                        Observable observable1 =  Observable.timer(5000, TimeUnit.MILLISECONDS);// TODO
+                                        observable1.subscribe(new Action1() {
+                                            @Override
+                                            public void call(Object o) {
+                                                Log.e(TAG, "Retrying");
+                                            }
+                                        });
+                                        return observable1;
+                                    }
+                                    // else, just return the error
+                                    else return Observable.error(throwable);
                                 }
                             });
                     // TODO this other approach could be much better but this is not working for some reason

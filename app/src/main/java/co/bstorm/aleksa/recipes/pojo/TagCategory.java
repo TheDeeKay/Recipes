@@ -18,6 +18,10 @@ public class TagCategory extends RealmObject {
     private int id;
     @SerializedName("name")
     private String name;
+    @SerializedName("en_name")
+    private String enName;
+    @SerializedName("country_id")
+    private int countryId;
 
     public int getId() {
         return id;
@@ -33,5 +37,21 @@ public class TagCategory extends RealmObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getEnName() {
+        return enName;
+    }
+
+    public void setEnName(String enName) {
+        this.enName = enName;
+    }
+
+    public int getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(int countryId) {
+        this.countryId = countryId;
     }
 }

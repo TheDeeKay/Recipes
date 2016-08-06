@@ -4,17 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
 
+import co.bstorm.aleksa.recipes.api.retrofit.RecipesApiInterface;
 import co.bstorm.aleksa.recipes.constants.Constants;
 import co.bstorm.aleksa.recipes.libs.gson.MyDeserializer;
-import co.bstorm.aleksa.recipes.libs.retrofit.RecipesApiInterface;
 import co.bstorm.aleksa.recipes.pojo.Component;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
-import co.bstorm.aleksa.recipes.pojo.Tag;
 import co.bstorm.aleksa.recipes.pojo.TagCategory;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -33,14 +30,12 @@ public class API {
     private static Type tagListType = new TypeToken<ArrayList<TagCategory>>(){}.getType();
 
     private static Gson gson = new GsonBuilder()
-            .excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC)
-            .serializeNulls()
             .registerTypeAdapter(Recipe.class, new MyDeserializer<Recipe>())
-            .registerTypeAdapter(recipeListType, new MyDeserializer<List<Recipe>>())
+            .registerTypeAdapter(recipeListType, new MyDeserializer<ArrayList<Recipe>>())
             .registerTypeAdapter(Component.class, new MyDeserializer<Component>())
-            .registerTypeAdapter(componentListType, new MyDeserializer<List<Component>>())
+            .registerTypeAdapter(componentListType, new MyDeserializer<ArrayList<Component>>())
+            .registerTypeAdapter(tagListType, new MyDeserializer<ArrayList<TagCategory>>())
             .registerTypeAdapter(TagCategory.class, new MyDeserializer<TagCategory>())
-            .registerTypeAdapter(tagListType, new MyDeserializer<List<TagCategory>>())
             .create();
 
     private static Retrofit retrofit =
@@ -65,7 +60,7 @@ public class API {
         return recipesInterface.listAllComponents();
     }
 
-    public static Observable<ArrayList<Tag>> getAllTags(){
+    public static Observable<ArrayList<TagCategory>> getAllTags(){
         return recipesInterface.listAllTags();
     }
 }

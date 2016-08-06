@@ -1,10 +1,10 @@
-package co.bstorm.aleksa.recipes.libs.retrofit;
+package co.bstorm.aleksa.recipes.api.retrofit;
 
 import java.util.ArrayList;
 
 import co.bstorm.aleksa.recipes.pojo.Component;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
-import co.bstorm.aleksa.recipes.pojo.Tag;
+import co.bstorm.aleksa.recipes.pojo.TagCategory;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.Query;
@@ -35,5 +35,5 @@ public interface RecipesApiInterface {
     // Gets a list of all tags
     @Headers("Accept-Language: SRB")
     @GET("tags/get-tags")
-    Observable<ArrayList<Tag>> listAllTags();
+    Observable<ArrayList<TagCategory>> listAllTags();
 }
