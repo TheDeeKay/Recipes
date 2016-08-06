@@ -1,11 +1,16 @@
 package co.bstorm.aleksa.recipes.ui;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -28,20 +33,28 @@ import rx.Observer;
 import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener{
 
     private static final String TAG = "MainActivity";
 
-    Realm realm;
-    RecipeListAdapter mAdapter;
-    RealmChangeListener<RealmResults<Recipe>> changeListener;
-    RealmResults<Recipe> recipes;
+    private Realm realm;
+    private RealmChangeListener<RealmResults<Recipe>> changeListener;
+    private RealmResults<Recipe> recipes;
+
+    private RecipeListAdapter mAdapter;
+    private ListView mRecipesList;
+
+    private Menu mMenu;
 
     // Used to unsubscribe from observables at the end of lifecycle
-    CompositeSubscription cs;
+    private CompositeSubscription cs;
 
     // Indicates whether we are currently loading more items
-    boolean flagLoading = false;
+    private boolean flagLoading = false;
+
+    // Indicates whether we are currently using the search query
+    // Used to disable new fetching on scroll down while using search
+    private boolean queryActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,16 +72,15 @@ public class MainActivity extends AppCompatActivity{
 
         recipes = realm.where(Recipe.class).findAll();
 
-        final ListView recipesList = (ListView) findViewById(R.id.recipes_list);
+        mRecipesList = (ListView) findViewById(R.id.recipes_list);
         mAdapter = new RecipeListAdapter(this, recipes);
-        recipesList.setAdapter(mAdapter);
+        mRecipesList.setAdapter(mAdapter);
 
         // Set a footer view to be a simple progress bar
         // TODO make this disappear when there's no more items to load
-        ProgressBar progressBar = new ProgressBar(this);
+        final ProgressBar progressBar = new ProgressBar(this);
         progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, android.graphics.PorterDuff.Mode.SRC_IN);
         progressBar.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.progress_bar_background, null));
-        recipesList.addFooterView(progressBar);
 
         // Monitor Realm data
         changeListener = new RealmChangeListener<RealmResults<Recipe>>() {
@@ -79,14 +91,14 @@ public class MainActivity extends AppCompatActivity{
         };
         recipes.addChangeListener(changeListener);
 
-        recipesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mRecipesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 launchDetails(id);
             }
         });
 
-        recipesList.setOnScrollListener(new AbsListView.OnScrollListener() {
+        mRecipesList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
             }
@@ -96,8 +108,10 @@ public class MainActivity extends AppCompatActivity{
                                  final int visibleItemCount, final int totalItemCount) {
 
                 if(totalItemCount != 0 && firstVisibleItem + visibleItemCount == totalItemCount) {
-                    if(!flagLoading) {
+                    if(!flagLoading && !queryActive) {
                         flagLoading = true;
+
+                        mRecipesList.addFooterView(progressBar);
 
                         // Get an observable for fetching offset recipes
                         Observable<ArrayList<Recipe>> observable = API.getOffsetRecipes(totalItemCount);
@@ -114,8 +128,16 @@ public class MainActivity extends AppCompatActivity{
                                         observer.onCompleted();
                                         // If we fetched anything, we just remove the loading flag
                                         // otherwise, we disable further updates by keeping the loading flag
-                                        if (recipesList.getCount() != totalItemCount)
+                                        if (mRecipesList.getCount() -1 > totalItemCount)
                                             flagLoading = false;
+                                        // Remove the progress
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                mRecipesList.removeFooterView(progressBar);
+                                                mAdapter.notifyDataSetChanged();
+                                            }
+                                        });
                                     }
                                     @Override
                                     public void onError(Throwable e) {
@@ -146,6 +168,23 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_menu, menu);
+
+        mMenu = menu;
+
+        SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView mSearchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.main_search));
+
+        mSearchView.setSearchableInfo(manager.getSearchableInfo(getComponentName()));
+        mSearchView.setOnQueryTextListener(this);
+        mSearchView.setIconifiedByDefault(true);
+        mSearchView.setSubmitButtonEnabled(false);
+
+        return true;
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
 
@@ -154,5 +193,42 @@ public class MainActivity extends AppCompatActivity{
         recipes.removeChangeListener(changeListener);
 
         realm.close();
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        if (mMenu != null)
+            mMenu.findItem(R.id.main_search).getActionView().clearFocus();
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+
+        doQuery(newText);
+
+        return true;
+    }
+
+    private void doQuery(String newText){
+        if (newText != null && newText.length() > 0) {
+            queryActive = true;
+            String query = newText.toLowerCase();
+            String queryInitialUpper;
+            if (query.length() > 1)
+                queryInitialUpper = query.substring(0, 1).toUpperCase() + query.substring(1);
+            else
+                queryInitialUpper = query.toUpperCase();
+
+            // A hack since Realm doesn't support case insensitive search for non-english locales
+            RealmResults<Recipe> queryResults = recipes.where().contains("title", query)
+                    .or().contains("title", queryInitialUpper).findAll();
+
+            mAdapter.updateData(queryResults);
+        }
+        else {
+            mAdapter.updateData(recipes);
+            queryActive = false;
+        }
     }
 }

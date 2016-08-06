@@ -31,6 +31,8 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         realm = Realm.getDefaultInstance();
 
         mDetails = (ListView) findViewById(R.id.details_root);

@@ -4,4 +4,6 @@
     <string name="serving_size_format">for %d people</string>
     <string name="step_separator">STEPS</string>
     <string name="no_connection">Failed to load data, check your internet connection</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">Search</string>
 </resources>
