@@ -5,5 +5,8 @@
     <string name="step_separator">STEPS</string>
     <string name="no_connection">Failed to load data, check your internet connection</string>
     <string name="search_title">Search</string>
-    <string name="search_hint">Search</string>
+    <string name="search_hint">Search recipes</string>
+    <string name="filter_activity_title">Filters</string>
+    <string name="apply_filters">Apply filters</string>
+    <string name="clear_filters">Clear filters</string>
 </resources>

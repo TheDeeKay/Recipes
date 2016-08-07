@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".ui.MainActivity"
+        <activity android:name=".ui.activity.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
@@ -23,12 +23,20 @@
                 android:value="@xml/searchable"/>
         </activity>
 
-        <activity android:name=".ui.DetailActivity"
+        <activity android:name=".ui.activity.DetailActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".ui.MainActivity">
+            android:parentActivityName=".ui.activity.MainActivity">
 
             <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity"/>
+                android:value=".ui.activity.MainActivity"/>
+        </activity>
+
+        <activity android:name=".ui.activity.FilterActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".ui.activity.MainActivity">
+
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.activity.MainActivity"/>
         </activity>
 
     </application>

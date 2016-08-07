@@ -32,7 +32,7 @@ public class Recipe extends RealmObject{
     @SerializedName("steps")
     private RealmList<Step> steps;
     @SerializedName("tags")
-    private RealmList<Tag> tags;
+    private RealmList<RecipeTag> tags;
     @SerializedName("ingredients")
     private RealmList<Ingredient> ingredients;
 
@@ -100,11 +100,11 @@ public class Recipe extends RealmObject{
         this.steps = steps;
     }
 
-    public RealmList<Tag> getTags() {
+    public RealmList<RecipeTag> getTags() {
         return tags;
     }
 
-    public void setTags(RealmList<Tag> tags) {
+    public void setTags(RealmList<RecipeTag> tags) {
         this.tags = tags;
     }
 

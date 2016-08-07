@@ -1,4 +1,4 @@
-package co.bstorm.aleksa.recipes.ui;
+package co.bstorm.aleksa.recipes.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

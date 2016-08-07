@@ -218,9 +218,15 @@ public class DetailListAdapter extends RealmBaseAdapter {
         if (quantityType.equals(Constants.Measures.QUANTITY_TYPE_NUMBER))
             return "";
 
+        // Preferred measure "thousand" in weight means milliliters
+        if (quantityType.equals(Constants.Measures.QUANTITY_TYPE_VOLUME)
+                && preferredMeasure.equals(Constants.Measures.PREFERRED_MEASURE_THOUSAND))
+            return Constants.Measures.VOLUME_UNIT_MILLILITER;
+
         if (preferredMeasure.equals(Constants.Measures.PREFERRED_MEASURE_REGULAR)) {
             return Constants.Measures.MEASURE_MAP.get(quantityType);
         }
+        // Preferred measure "thousand" in weight means grams
         else if (preferredMeasure.equals(Constants.Measures.PREFERRED_MEASURE_THOUSAND)
                 && quantityType.equals(Constants.Measures.QUANTITY_TYPE_WEIGHT)){
             return Constants.Measures.WEIGHT_UNIT_GRAM;

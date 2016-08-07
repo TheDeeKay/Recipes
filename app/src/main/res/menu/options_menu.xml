@@ -5,8 +5,15 @@
     <item
         android:id="@+id/main_search"
         android:title="@string/search_title"
+
         android:icon="@android:drawable/ic_search_category_default"
         app:showAsAction="always|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView"
         />
+
+    <item
+        android:id="@+id/main_filter"
+        android:title="Filter"
+        android:icon="@drawable/ic_filter_list_black"
+        app:showAsAction="always|collapseActionView"/>
 </menu>

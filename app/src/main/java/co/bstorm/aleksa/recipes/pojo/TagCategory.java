@@ -2,6 +2,7 @@ package co.bstorm.aleksa.recipes.pojo;
 
 import com.google.gson.annotations.SerializedName;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -22,6 +23,8 @@ public class TagCategory extends RealmObject {
     private String enName;
     @SerializedName("country_id")
     private int countryId;
+    @SerializedName("tags")
+    private RealmList<Tag> tags;
 
     public int getId() {
         return id;
@@ -53,5 +56,13 @@ public class TagCategory extends RealmObject {
 
     public void setCountryId(int countryId) {
         this.countryId = countryId;
+    }
+
+    public RealmList<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(RealmList<Tag> tags) {
+        this.tags = tags;
     }
 }

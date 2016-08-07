@@ -31,15 +31,6 @@ public class DbColumns {
 
     }
 
-    public static class RecipeTag {
-
-        public static final String TABLE_NAME = "RecipeTags";
-
-        public static final String RECIPE_ID = "recipeId";
-        public static final String TAG_ID = "tagId";
-
-    }
-
     public static class Component {
 
         public static final String TABLE_NAME = "Components";
