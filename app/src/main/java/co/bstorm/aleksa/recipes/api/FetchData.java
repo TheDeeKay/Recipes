@@ -36,6 +36,8 @@ public class FetchData {
 
     private static final String TAG = "FetchData";
 
+    private static final int MAX_RETRIES = 5;
+
     // Use this as a form of singleton since we always use the same retryWhen strategy
     private static Func1<Observable<? extends Throwable>, Observable<?>> retryWhenFunc = null;
 
@@ -89,11 +91,11 @@ public class FetchData {
     }
 
     /**
-     * Displays a network error toast if there is not already another one
+     * Displays an error toast if there is not already another Toast displaying
      */
-    private static void makeMissingConnectionToast(Context context) {
+    private static void makeErrorToast(Context context, String message) {
         if (toast == null || toast.getView().getWindowVisibility() == View.INVISIBLE) {
-            toast = Toast.makeText(context, context.getString(R.string.no_connection), Toast.LENGTH_LONG);
+            toast = Toast.makeText(context, message, Toast.LENGTH_LONG);
             toast.show();
         }
     }
@@ -115,7 +117,9 @@ public class FetchData {
             public void onError(Throwable e) {
                 Log.e(TAG, "Encountered error during fetch/insert",e);
                 if (e instanceof ConnectException)
-                    makeMissingConnectionToast(context);
+                    makeErrorToast(context, context.getString(R.string.no_connection));
+                else
+                    makeErrorToast(context, context.getString(R.string.error_fetching));
             }
 
             @Override
@@ -168,28 +172,25 @@ public class FetchData {
                             .subscribe(new Action1<Throwable>() {
                                 @Override
                                 public void call(Throwable throwable) {
-                                    makeMissingConnectionToast(context);
+                                    makeErrorToast(context, context.getString(R.string.no_connection));
                                 }
                             });
 
                     return observable
                             .flatMap(new Func1<Throwable, Observable<?>>() {
+                                int retries = 0;
                                 @Override
                                 public Observable<?> call(Throwable throwable) {
 
                                     // If there is no network, start retrying
                                     if (throwable.getClass().equals(ConnectException.class)) {
-                                        Observable observable1 =  Observable.timer(5000, TimeUnit.MILLISECONDS);// TODO
-                                        observable1.subscribe(new Action1() {
-                                            @Override
-                                            public void call(Object o) {
-                                                Log.e(TAG, "Retrying");
-                                            }
-                                        });
-                                        return observable1;
+                                        if (retries < MAX_RETRIES) {
+                                            retries++;
+                                            return Observable.timer(5000, TimeUnit.MILLISECONDS);
+                                        }
                                     }
                                     // else, just return the error
-                                    else return Observable.error(throwable);
+                                    return Observable.error(throwable);
                                 }
                             });
                     // TODO this other approach could be much better but this is not working for some reason

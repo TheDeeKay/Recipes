@@ -9,7 +9,6 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -158,6 +157,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                                     public void onError(Throwable e) {
                                         observer.onError(e);
                                         flagLoading = false;
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                mRecipesList.removeFooterView(progressBar);
+                                                mAdapter.notifyDataSetChanged();
+                                            }
+                                        });
                                     }
                                     @Override
                                     public void onNext(ArrayList<Recipe> recipes) {
