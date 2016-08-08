@@ -194,6 +194,7 @@ public class DetailListAdapter extends RealmBaseAdapter {
             holder.shoppingView.setImageResource(R.drawable.shopping_add);
         }
 
+        // Attach the add/remove from shopping list logic
         holder.shoppingView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
