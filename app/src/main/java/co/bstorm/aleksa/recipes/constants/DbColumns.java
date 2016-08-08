@@ -28,6 +28,7 @@ public class DbColumns {
         public static final String QUANTITY = "quantity";
         public static final String PREFERRED_MEASURE = "preferredMeasure";
         public static final String RECIPE_ID = "recipeId";
+        public static final String IN_CART = "inCart";
 
     }
 
@@ -70,5 +71,11 @@ public class DbColumns {
     public static class RecipeTag {
 
         public static final String ID = "id";
+    }
+
+    public static class ShoppingItem {
+
+        public static final String COMPONENT = "component";
+        public static final String INGREDIENTS = "ingredients";
     }
 }

@@ -4,33 +4,25 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:layout_marginTop="8dp">
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
     <ImageButton
-        android:id="@+id/ingredient_item_shopping_button"
+        android:id="@+id/shopping_item_remove_button"
         android:src="@drawable/shopping_remove"
         style="@style/ShoppingButton"
         />
 
     <TextView
-        android:id="@+id/ingredient_item_amount"
+        android:id="@+id/shopping_item_amount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textStyle="bold"
-        android:gravity="end"
+        android:gravity="center"
         android:layout_marginEnd="18dp"
         android:textSize="18sp"
         android:textColor="@android:color/black"
-        />
-
-    <TextView
-        android:id="@+id/ingredient_item_component"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="2"
-        android:layout_gravity="start"
-        android:textSize="18sp"
         />
 
 </LinearLayout>

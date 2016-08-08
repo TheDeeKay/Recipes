@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,11 +13,13 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import co.bstorm.aleksa.recipes.R;
-import co.bstorm.aleksa.recipes.constants.Constants;
+import co.bstorm.aleksa.recipes.constants.DbColumns;
 import co.bstorm.aleksa.recipes.pojo.Component;
 import co.bstorm.aleksa.recipes.pojo.Ingredient;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
+import co.bstorm.aleksa.recipes.pojo.ShoppingItem;
 import co.bstorm.aleksa.recipes.pojo.Step;
+import io.realm.Realm;
 import io.realm.RealmBaseAdapter;
 
 /**
@@ -122,6 +125,7 @@ public class DetailListAdapter extends RealmBaseAdapter {
 
         holder.amountView = (TextView) view.findViewById(R.id.ingredient_item_amount);
         holder.componentView = (TextView) view.findViewById(R.id.ingredient_item_component);
+        holder.shoppingView = (ImageButton) view.findViewById(R.id.ingredient_item_shopping_button);
 
         view.setTag(holder);
 
@@ -154,33 +158,66 @@ public class DetailListAdapter extends RealmBaseAdapter {
         return view;
     }
 
-    private void bindIgredientView(View view, int position){
+    private void bindIgredientView(final View view, int position){
         IngredientViewHolder holder = (IngredientViewHolder) view.getTag();
 
-        Ingredient ingredient = recipe.getIngredients().get(position - 2);
+        final Ingredient ingredient = recipe.getIngredients().get(position - 2);
 
         float amount = ingredient.getQuantity();
 
         String amountText;
 
-        Component component = ingredient.getComponent();
+        final Component component = ingredient.getComponent();
 
         if (amount == 0)
             amountText = "";
         else {
-            String quantityType = (component != null) ? component.getQuantityType() : "";
-            String preferredMeasure = ingredient.getPreferredMeasure();
-
-            // Remove trailing zeros if possible
-            if ((int) amount == amount)
-                amountText = String.format("%d %s", (int)amount, getUnit(preferredMeasure, quantityType));
-            else
-                amountText = String.format("%f %s", amount, getUnit(preferredMeasure, quantityType));
+            amountText = ingredient.getFormattedAmount();
         }
 
         holder.amountView.setText(amountText.trim());
 
         holder.componentView.setText(component != null ? component.getName() : "");
+
+        Realm realm = Realm.getDefaultInstance();
+        ShoppingItem item = realm.where(ShoppingItem.class)
+                .equalTo(DbColumns.ShoppingItem.COMPONENT + "." + DbColumns.Component.ID, component.getId())
+                .findFirst();
+        realm.close();
+
+        boolean inShoppingList = item != null && item.getIngredients().contains(ingredient);
+
+        if (inShoppingList){
+            holder.shoppingView.setImageResource(R.drawable.shopping_remove);
+        }
+        else {
+            holder.shoppingView.setImageResource(R.drawable.shopping_add);
+        }
+
+        holder.shoppingView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+
+                ShoppingItem item = realm.where(co.bstorm.aleksa.recipes.pojo.ShoppingItem.class)
+                        .equalTo(DbColumns.ShoppingItem.COMPONENT + "." + DbColumns.Component.ID, component.getId())
+                        .findFirst();
+
+                if (item == null){
+                    item = realm.createObject(ShoppingItem.class);
+                    item.setComponent(ingredient.getComponent());
+                }
+
+                if (!item.getIngredients().contains(ingredient))
+                    item.getIngredients().add(ingredient);
+                else
+                    item.getIngredients().remove(ingredient);
+
+                realm.commitTransaction();
+                realm.close();
+            }
+        });
     }
 
     private void bindImageView(View view, Context context){
@@ -208,36 +245,8 @@ public class DetailListAdapter extends RealmBaseAdapter {
         holder.descriptionView.setText(step.getText());
     }
 
-
-
-    // Gets a preferred unit for the given quantity type and preferred measure
-    private String getUnit (String preferredMeasure, String quantityType){
-        if (preferredMeasure == null || quantityType == null)
-            return "";
-
-        if (quantityType.equals(Constants.Measures.QUANTITY_TYPE_NUMBER))
-            return "";
-
-        // Preferred measure "thousand" in weight means milliliters
-        if (quantityType.equals(Constants.Measures.QUANTITY_TYPE_VOLUME)
-                && preferredMeasure.equals(Constants.Measures.PREFERRED_MEASURE_THOUSAND))
-            return Constants.Measures.VOLUME_UNIT_MILLILITER;
-
-        if (preferredMeasure.equals(Constants.Measures.PREFERRED_MEASURE_REGULAR)) {
-            return Constants.Measures.MEASURE_MAP.get(quantityType);
-        }
-        // Preferred measure "thousand" in weight means grams
-        else if (preferredMeasure.equals(Constants.Measures.PREFERRED_MEASURE_THOUSAND)
-                && quantityType.equals(Constants.Measures.QUANTITY_TYPE_WEIGHT)){
-            return Constants.Measures.WEIGHT_UNIT_GRAM;
-        }
-        else {
-            return preferredMeasure;
-        }
-    }
-
     private static class IngredientViewHolder {
-
+        ImageButton shoppingView;
         TextView amountView;
         TextView componentView;
     }

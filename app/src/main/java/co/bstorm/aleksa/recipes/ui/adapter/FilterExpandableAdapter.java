@@ -1,7 +1,6 @@
 package co.bstorm.aleksa.recipes.ui.adapter;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,12 +26,10 @@ public class FilterExpandableAdapter extends BaseExpandableListAdapter {
 
     RealmResults<TagCategory> tagCategories;
     LayoutInflater inflater;
-    SharedPreferences sharedPref;
 
     public FilterExpandableAdapter(Context context, RealmResults<TagCategory> tagCategories){
         inflater = LayoutInflater.from(context);
         this.tagCategories = tagCategories;
-        sharedPref = context.getSharedPreferences(Constants.FILTER_SHARED_PREF, Context.MODE_PRIVATE);
     }
 
     @Override

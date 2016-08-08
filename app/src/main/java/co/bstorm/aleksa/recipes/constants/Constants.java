@@ -9,8 +9,6 @@ public class Constants {
 
     public static final String RECIPE_ID_EXTRA = "recipe_id";
 
-    public static final int REQUEST_CODE_FILTER = 1000;
-
     public static final String FILTER_SHARED_PREF = "filterSharedPref";
     public static final String TAG_SHARED_PREF_KEY = "tag";
 

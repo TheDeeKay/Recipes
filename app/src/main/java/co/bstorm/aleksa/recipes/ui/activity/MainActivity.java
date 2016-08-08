@@ -240,9 +240,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
             case R.id.main_filter:{
                 Intent intent = new Intent(this, FilterActivity.class);
-                startActivityForResult(intent, Constants.REQUEST_CODE_FILTER);
+                startActivity(intent);
 
                 return true;
+            }
+
+            case R.id.main_shopping:{
+                Intent intent = new Intent(this, ShoppingActivity.class);
+                startActivity(intent);
             }
             default: return false;
         }

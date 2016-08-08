@@ -2,6 +2,7 @@ package co.bstorm.aleksa.recipes.pojo;
 
 import com.google.gson.annotations.SerializedName;
 
+import co.bstorm.aleksa.recipes.constants.Constants;
 import co.bstorm.aleksa.recipes.constants.DbColumns;
 import io.realm.Realm;
 import io.realm.RealmObject;
@@ -70,6 +71,42 @@ public class Ingredient extends RealmObject {
 
     public Component getComponent(){
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(Component.class).equalTo(DbColumns.Component.ID, componentId).findFirst();
+        Component comp =  realm.where(Component.class).equalTo(DbColumns.Component.ID, componentId).findFirst();
+        realm.close();
+        return comp;
+    }
+
+    // Returns a formatted amount (<number> [unit])
+    public String getFormattedAmount(){
+        if (quantity == ((int) quantity))
+            return String.format("%d %s", quantity != 0 ? (int)quantity : 1, getUnit(preferredMeasure, getComponent().getQuantityType()));
+        else
+            return String.format("%f.2 %s", quantity != 0 ? quantity : 1, getUnit(preferredMeasure, getComponent().getQuantityType()));
+    }
+
+    // Gets a preferred unit for the given quantity type and preferred measure
+    private String getUnit (String preferredMeasure, String quantityType){
+        if (preferredMeasure == null || quantityType == null)
+            return "";
+
+        if (quantityType.equals(Constants.Measures.QUANTITY_TYPE_NUMBER))
+            return "";
+
+        // Preferred measure "thousand" in weight means milliliters
+        if (quantityType.equals(Constants.Measures.QUANTITY_TYPE_VOLUME)
+                && preferredMeasure.equals(Constants.Measures.PREFERRED_MEASURE_THOUSAND))
+            return Constants.Measures.VOLUME_UNIT_MILLILITER;
+
+        if (preferredMeasure.equals(Constants.Measures.PREFERRED_MEASURE_REGULAR)) {
+            return Constants.Measures.MEASURE_MAP.get(quantityType);
+        }
+        // Preferred measure "thousand" in weight means grams
+        else if (preferredMeasure.equals(Constants.Measures.PREFERRED_MEASURE_THOUSAND)
+                && quantityType.equals(Constants.Measures.QUANTITY_TYPE_WEIGHT)){
+            return Constants.Measures.WEIGHT_UNIT_GRAM;
+        }
+        else {
+            return preferredMeasure;
+        }
     }
 }
