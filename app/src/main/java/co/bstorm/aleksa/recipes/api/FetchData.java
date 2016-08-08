@@ -38,9 +38,6 @@ public class FetchData {
 
     private static final int MAX_RETRIES = 12;
 
-    // Use this as a form of singleton since we always use the same retryWhen strategy
-    private static Func1<Observable<? extends Throwable>, Observable<?>> retryWhenFunc = null;
-
     // Used to avoid duplicating network error toasts
     private static Toast toast = null;
 
@@ -154,48 +151,46 @@ public class FetchData {
      */
     private static Func1<Observable<? extends Throwable>, Observable<?>> getRetryWhenFunc(final Context context){
 
-        if (retryWhenFunc == null)
+        return new Func1<Observable<? extends Throwable>, Observable<?>>() {
+            @Override
+            public Observable<?> call(final Observable<? extends Throwable> observable) {
 
-            retryWhenFunc = new Func1<Observable<? extends Throwable>, Observable<?>>() {
-                @Override
-                public Observable<?> call(final Observable<? extends Throwable> observable) {
+                // Use this to display the no-network message (because onError won't trigger when there's retry)
+                observable
+                        .filter(new Func1<Throwable, Boolean>() {
+                            @Override
+                            public Boolean call(Throwable throwable) {
+                                return throwable.getClass().equals(ConnectException.class);
+                            }
+                        })
+                        .take(1)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Action1<Throwable>() {
+                            @Override
+                            public void call(Throwable throwable) {
+                                makeErrorToast(context, context.getString(R.string.no_connection));
+                            }
+                        });
 
-                    // Use this to display the no-network message (because onError won't trigger when there's retry)
-                    observable
-                            .filter(new Func1<Throwable, Boolean>() {
-                                @Override
-                                public Boolean call(Throwable throwable) {
-                                    return throwable.getClass().equals(ConnectException.class);
-                                }
-                            })
-                            .take(1)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new Action1<Throwable>() {
-                                @Override
-                                public void call(Throwable throwable) {
-                                    makeErrorToast(context, context.getString(R.string.no_connection));
-                                }
-                            });
+                return observable
+                        .flatMap(new Func1<Throwable, Observable<?>>() {
+                            int retries = 0;
+                            @Override
+                            public Observable<?> call(Throwable throwable) {
 
-                    return observable
-                            .flatMap(new Func1<Throwable, Observable<?>>() {
-                                int retries = 0;
-                                @Override
-                                public Observable<?> call(Throwable throwable) {
-
-                                    // If there is no network, start retrying
-                                    if (throwable.getClass().equals(ConnectException.class)) {
-                                        if (retries < MAX_RETRIES) {
-                                            retries++;
-                                            return Observable.timer(5000, TimeUnit.MILLISECONDS);
-                                        }
+                                // If there is no network, start retrying
+                                if (throwable.getClass().equals(ConnectException.class)) {
+                                    if (retries < MAX_RETRIES) {
+                                        retries++;
+                                        return Observable.timer(5000, TimeUnit.MILLISECONDS);
                                     }
-                                    // else, just return the error
-                                    return Observable.error(throwable);
                                 }
-                            });
-                    // TODO this other approach could be much better but this is not working for some reason
-                    // transform to an observable that emits stuff on network connection changes
+                                // else, just return the error
+                                return Observable.error(throwable);
+                            }
+                        });
+                // TODO this other approach could be much better but this is not working for some reason
+                // transform to an observable that emits stuff on network connection changes
 //                            .flatMap(new Func1<Throwable, Observable<?>>() {
 //                                @Override
 //                                public Observable<?> call(Throwable throwable) {
@@ -214,9 +209,7 @@ public class FetchData {
 //                                    return Observable.error(throwable);
 //                                }
 //                            });
-                }
-            };
-
-        return retryWhenFunc;
+            }
+        };
     }
 }
