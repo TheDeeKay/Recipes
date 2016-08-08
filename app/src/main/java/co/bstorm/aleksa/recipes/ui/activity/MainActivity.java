@@ -9,7 +9,6 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +29,7 @@ import co.bstorm.aleksa.recipes.ui.adapter.RecipeListAdapter;
 import co.bstorm.aleksa.recipes.util.FilterUtils;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
+import io.realm.RealmConfiguration;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import rx.Observable;
@@ -152,9 +152,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                                     @Override
                                     public void onCompleted() {
                                         observer.onCompleted();
+
+                                        Realm newRealm = Realm.getInstance(new RealmConfiguration.Builder(MainActivity.this).build());
+                                        long count = newRealm.where(Recipe.class).count();
+                                        newRealm.close();
                                         // If we fetched anything, we just remove the loading flag
                                         // otherwise, we disable further updates by keeping the loading flag
-//                                        if (mRecipesList.getCount() -1 > totalItemCount)
+                                        if (count > totalItemCount)
                                             flagLoading = false;
                                         // Remove the progress
                                         runOnUiThread(new Runnable() {
