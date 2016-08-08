@@ -9,6 +9,7 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,10 +40,13 @@ import rx.subscriptions.CompositeSubscription;
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener{
 
     private static final String TAG = "MainActivity";
+    private static final String LAST_QUERY_KEY = "lastQueryKey";
+    private static final String QUERY_ACTIVE_KEY = "queryActiveKey";
 
     private Realm realm;
     private RealmChangeListener<Realm> changeListener;
     private RealmResults<Recipe> recipes;
+    private RealmResults<Recipe> filteredRecipes;
 
     private RecipeListAdapter mAdapter;
     private ListView mRecipesList;
@@ -61,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     // Used to disable new fetching on scroll down while using search
     private boolean queryActive = false;
 
+    // Used to memorize the search while moving between activities and filters
+    private String lastQuery = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         cs.add(FetchData.fetchDataFromObservable(API.getAllTags(), getApplicationContext()));
 
         recipes = realm.where(Recipe.class).findAll();
+        filteredRecipes = recipes;
 
         mRecipesList = (ListView) findViewById(R.id.recipes_list);
         mAdapter = new RecipeListAdapter(this, recipes);
@@ -86,7 +94,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             @Override
             public void onClick(View v) {
                 FilterUtils.filterTagIds.clear();
-                applyFilters();
+                filteredRecipes = applyFilters(recipes);
+                if (queryActive)
+                    mAdapter.updateData(doQuery(lastQuery, filteredRecipes));
+                else
+                    mAdapter.updateData(filteredRecipes);
             }
         });
 
@@ -123,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
                 if(totalItemCount != 0 && firstVisibleItem + visibleItemCount == totalItemCount) {
                     // If we're already loading, or currently querying/filtering, we won't load new data
-                    if(!flagLoading && !queryActive) {
+                    if(!flagLoading && !queryActive && FilterUtils.filterTagIds.isEmpty()) {
                         flagLoading = true;
 
                         mRecipesList.addFooterView(progressBar);
@@ -142,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                                         observer.onCompleted();
                                         // If we fetched anything, we just remove the loading flag
                                         // otherwise, we disable further updates by keeping the loading flag
-                                        if (mRecipesList.getCount() -1 > totalItemCount)
+//                                        if (mRecipesList.getCount() -1 > totalItemCount)
                                             flagLoading = false;
                                         // Remove the progress
                                         runOnUiThread(new Runnable() {
@@ -191,7 +203,16 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         super.onResume();
 
         // Apply any selected filters (or clear them if there are none)
-        applyFilters();
+        filteredRecipes = applyFilters(recipes);
+
+        // Apply the search
+        if (queryActive && lastQuery != null) {
+            SearchView search = (SearchView) mMenu.findItem(R.id.main_search).getActionView();
+            search.setQuery(lastQuery, true);
+            mAdapter.updateData(doQuery(lastQuery, filteredRecipes));
+        }
+        else
+            mAdapter.updateData(filteredRecipes);
     }
 
     @Override
@@ -246,12 +267,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public boolean onQueryTextChange(String newText) {
 
-        doQuery(newText);
+        mAdapter.updateData(doQuery(newText, filteredRecipes));
 
         return true;
     }
 
-    private void doQuery(String newText){
+    /**
+     * Applies search to a given query result
+     * @param newText The search keyword to apply
+     * @param base The base query to modify
+     * @return Query results to which the search has been applied
+     */
+    private RealmResults<Recipe> doQuery(String newText, RealmResults<Recipe> base){
+        lastQuery = newText;
         if (newText != null && newText.length() > 0) {
             queryActive = true;
             String query = newText.toLowerCase();
@@ -262,23 +290,26 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 queryInitialUpper = query.toUpperCase();
 
             // A hack since Realm doesn't support case insensitive search for non-english locales
-            RealmResults<Recipe> queryResults = recipes.where().contains("title", query)
+            return base.where().contains("title", query)
                     .or().contains("title", queryInitialUpper).findAll();
-
-            mAdapter.updateData(queryResults);
         }
         else {
-            mAdapter.updateData(recipes);
             queryActive = false;
+            return base;
         }
     }
 
-    private void applyFilters(){
+    /**
+     * Applies filters to given query results
+     * @param base The results to which we want to apply filters
+     * @return
+     */
+    private RealmResults<Recipe> applyFilters(RealmResults<Recipe> base){
         if (!FilterUtils.filterTagIds.isEmpty()) {
 
             mClearFilters.setVisibility(View.VISIBLE);
 
-            RealmQuery<Recipe> filteredRecipesQuery = realm.where(Recipe.class);
+            RealmQuery<Recipe> filteredRecipesQuery = base.where();
 
             boolean passedFirstItem = false;
             for (Integer id : FilterUtils.filterTagIds) {
@@ -286,13 +317,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     filteredRecipesQuery = filteredRecipesQuery.or();
                 else
                     passedFirstItem = true;
-                filteredRecipesQuery.equalTo("tags.id", id); // TODO extract this
+                filteredRecipesQuery = filteredRecipesQuery.equalTo("tags.id", id); // TODO extract this
+
             }
-            mAdapter.updateData(filteredRecipesQuery.findAll());
+            return filteredRecipesQuery.findAll();
         }
         else {
             mClearFilters.setVisibility(View.GONE);
-            mAdapter.updateData(recipes);
+            return base;
         }
     }
 }
