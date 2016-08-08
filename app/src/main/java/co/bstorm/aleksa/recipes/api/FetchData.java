@@ -36,7 +36,7 @@ public class FetchData {
 
     private static final String TAG = "FetchData";
 
-    private static final int MAX_RETRIES = 5;
+    private static final int MAX_RETRIES = 12;
 
     // Use this as a form of singleton since we always use the same retryWhen strategy
     private static Func1<Observable<? extends Throwable>, Observable<?>> retryWhenFunc = null;
@@ -131,6 +131,7 @@ public class FetchData {
                 if (items != null && items.size() > 0 && (items.get(0).getClass().equals(Recipe.class))) {
                     for (Recipe recipe :
                             (ArrayList<Recipe>)items) {
+                        recipe.setTitleLower(recipe.getTitle().toLowerCase());
                         for (Ingredient ingredient :
                                 recipe.getIngredients()) {
                             ingredient.setRecipeId(recipe.getId());

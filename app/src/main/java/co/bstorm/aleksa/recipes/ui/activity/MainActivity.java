@@ -287,15 +287,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         if (newText != null && newText.length() > 0) {
             queryActive = true;
             String query = newText.toLowerCase();
-            String queryInitialUpper;
-            if (query.length() > 1)
-                queryInitialUpper = query.substring(0, 1).toUpperCase() + query.substring(1);
-            else
-                queryInitialUpper = query.toUpperCase();
 
             // A hack since Realm doesn't support case insensitive search for non-english locales
-            return base.where().contains("title", query)
-                    .or().contains("title", queryInitialUpper).findAll();
+            return base.where().contains("titleLower", query).findAll();
         }
         else {
             queryActive = false;

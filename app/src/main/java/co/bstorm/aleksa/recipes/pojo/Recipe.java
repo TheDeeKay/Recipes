@@ -35,6 +35,7 @@ public class Recipe extends RealmObject{
     private RealmList<RecipeTag> tags;
     @SerializedName("ingredients")
     private RealmList<Ingredient> ingredients;
+    private String titleLower;
 
     public int getId() {
         return id;
@@ -114,5 +115,13 @@ public class Recipe extends RealmObject{
 
     public void setIngredients(RealmList<Ingredient> ingredients) {
         this.ingredients = ingredients;
+    }
+
+    public String getTitleLower() {
+        return titleLower;
+    }
+
+    public void setTitleLower(String titleLower) {
+        this.titleLower = titleLower;
     }
 }
