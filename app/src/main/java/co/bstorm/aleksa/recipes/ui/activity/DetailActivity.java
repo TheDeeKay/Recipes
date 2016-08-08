@@ -7,6 +7,7 @@ import android.widget.ListView;
 
 import co.bstorm.aleksa.recipes.R;
 import co.bstorm.aleksa.recipes.constants.Constants;
+import co.bstorm.aleksa.recipes.constants.DbColumns;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
 import co.bstorm.aleksa.recipes.ui.adapter.DetailListAdapter;
 import io.realm.Realm;
@@ -43,7 +44,7 @@ public class DetailActivity extends AppCompatActivity {
 
             long recipeId = intent.getExtras().getLong(Constants.RECIPE_ID_EXTRA);
 
-            Recipe recipe = realm.where(Recipe.class).equalTo("id", recipeId).findFirst(); // TODO extract this
+            Recipe recipe = realm.where(Recipe.class).equalTo(DbColumns.Recipe.ID, recipeId).findFirst();
 
             mAdapter = new DetailListAdapter(this, recipe);
             mDetails.setAdapter(mAdapter);

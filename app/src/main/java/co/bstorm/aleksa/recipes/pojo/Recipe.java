@@ -10,7 +10,6 @@ import io.realm.annotations.PrimaryKey;
  * Created by aleksa on 7/29/16.
  *
  * A POJO representing our recipe
- * TODO
  */
 public class Recipe extends RealmObject{
 

@@ -24,6 +24,7 @@ import co.bstorm.aleksa.recipes.R;
 import co.bstorm.aleksa.recipes.api.API;
 import co.bstorm.aleksa.recipes.api.FetchData;
 import co.bstorm.aleksa.recipes.constants.Constants;
+import co.bstorm.aleksa.recipes.constants.DbColumns;
 import co.bstorm.aleksa.recipes.pojo.Recipe;
 import co.bstorm.aleksa.recipes.ui.adapter.RecipeListAdapter;
 import co.bstorm.aleksa.recipes.util.FilterUtils;
@@ -40,8 +41,6 @@ import rx.subscriptions.CompositeSubscription;
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener{
 
     private static final String TAG = "MainActivity";
-    private static final String LAST_QUERY_KEY = "lastQueryKey";
-    private static final String QUERY_ACTIVE_KEY = "queryActiveKey";
 
     private Realm realm;
     private RealmChangeListener<Realm> changeListener;
@@ -119,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mRecipesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // TODO implement correct scrolling on return
                 launchDetails(id);
             }
         });
@@ -192,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         });
     }
 
-    /** TODO this will change when master/detail is implemented
+    /**
      * Launches the details activity for the given recipe ID
      * @param id ID of the recipe whose details we want
      */
@@ -289,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             String query = newText.toLowerCase();
 
             // A hack since Realm doesn't support case insensitive search for non-english locales
-            return base.where().contains("titleLower", query).findAll();
+            return base.where().contains(DbColumns.Recipe.TITLE_LOWER, query).findAll();
         }
         else {
             queryActive = false;
@@ -315,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     filteredRecipesQuery = filteredRecipesQuery.or();
                 else
                     passedFirstItem = true;
-                filteredRecipesQuery = filteredRecipesQuery.equalTo("tags.id", id); // TODO extract this
+                filteredRecipesQuery = filteredRecipesQuery.equalTo(DbColumns.Recipe.TAGS + "." + DbColumns.RecipeTag.ID, id);
 
             }
             return filteredRecipesQuery.findAll();

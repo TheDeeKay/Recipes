@@ -7,35 +7,33 @@ public class DbColumns {
 
     public static class Recipe {
 
-        public static final String TABLE_NAME = "Recipes";
-
-        public static final String REMOTE_ID = "remoteId";
+        public static final String ID = "id";
         public static final String TITLE = "title";
         public static final String IMAGE_URL = "imageUrl";
         public static final String DIFFICULTY = "difficulty";
-        public static final String SERVING_SIZE = "serving_size";
-        public static final String PREP_TIME = "prepTime";
+        public static final String SERVING_SIZE = "defaultServingSize";
+        public static final String PREP_TIME = "preparationTime";
         public static final String LIKES = "likes";
-        public static final String IS_FEATURED = "featured";
+        public static final String STEPS = "steps";
+        public static final String TAGS = "tags";
+        public static final String INGREDIENTS = "ingredients";
+        public static final String TITLE_LOWER = "titleLower";
 
     }
 
     public static class Ingredient {
 
-        public static final String TABLE_NAME = "Ingredients";
-
+        public static final String ID = "uniqueId";
         public static final String COMPONENT_ID = "componentId";
         public static final String QUANTITY = "quantity";
-        public static final String PREFERRED_MEASURE = "measure";
+        public static final String PREFERRED_MEASURE = "preferredMeasure";
         public static final String RECIPE_ID = "recipeId";
 
     }
 
     public static class Component {
 
-        public static final String TABLE_NAME = "Components";
-
-        public static final String REMOTE_ID = "remoteId";
+        public static final String ID = "id";
         public static final String NAME = "name";
         public static final String QUANTITY_TYPE = "quantityType";
 
@@ -43,22 +41,17 @@ public class DbColumns {
 
     public static class Step {
 
-        public static final String TABLE_NAME = "Steps";
-
-        public static final String REMOTE_ID = "remoteId";
+        public static final String ID = "id";
         public static final String TEXT = "text";
-        public static final String SEQUENCE_INDEX = "seqNum";
+        public static final String SEQUENCE_INDEX = "sequenceIndex";
         public static final String TIMER = "timer";
         public static final String TIMER_NAME = "timerName";
-        public static final String RECIPE_ID = "recipeId";
 
     }
 
     public static class Tag {
 
-        public static final String TABLE_NAME = "Tags";
-
-        public static final String REMOTE_ID = "remoteId";
+        public static final String ID = "id";
         public static final String NAME = "name";
         public static final String TAG_CATEGORY_ID = "tagCategoryId";
 
@@ -66,10 +59,16 @@ public class DbColumns {
 
     public static class TagCategory {
 
-        public static final String TABLE_NAME = "TagCategories";
-
-        public static final String REMOTE_ID = "remoteId";
+        public static final String ID = "id";
         public static final String NAME = "name";
+        public static final String EN_NAME = "enName";
+        public static final String COUNTRY_ID = "countryId";
+        public static final String TAGS = "tags";
 
+    }
+
+    public static class RecipeTag {
+
+        public static final String ID = "id";
     }
 }

@@ -9,7 +9,6 @@ import io.realm.annotations.PrimaryKey;
  * Created by aleksa on 7/30/16.
  *
  * A class representing a general component in recipe, not specific (so, an apple and not 1/2 apple_id)
- * TODO
  */
 public class Component extends RealmObject{
 

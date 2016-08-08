@@ -9,7 +9,6 @@ import io.realm.annotations.PrimaryKey;
  * Created by aleksa on 7/29/16.
  *
  * Represents a single step in the recipe
- * TODO
  */
 public class Step extends RealmObject {
 

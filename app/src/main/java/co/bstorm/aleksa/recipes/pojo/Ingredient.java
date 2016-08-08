@@ -2,6 +2,7 @@ package co.bstorm.aleksa.recipes.pojo;
 
 import com.google.gson.annotations.SerializedName;
 
+import co.bstorm.aleksa.recipes.constants.DbColumns;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -13,7 +14,6 @@ import io.realm.annotations.PrimaryKey;
  *
  * We generate a primary key to avoid storing same elements over and over (since Ingredient doesn't provide us with a natural UID)
  * We do this using Szudzik's function
- * TODO
  */
 public class Ingredient extends RealmObject {
 
@@ -70,6 +70,6 @@ public class Ingredient extends RealmObject {
 
     public Component getComponent(){
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(Component.class).equalTo("id", componentId).findFirst(); // TODO extract
+        return realm.where(Component.class).equalTo(DbColumns.Component.ID, componentId).findFirst();
     }
 }

@@ -10,7 +10,6 @@ import io.realm.annotations.PrimaryKey;
  * Created by aleksa on 7/30/16.
  *
  * Represents a tag category
- * TODO
  */
 public class TagCategory extends RealmObject {
 

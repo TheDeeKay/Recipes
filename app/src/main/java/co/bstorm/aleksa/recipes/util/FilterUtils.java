@@ -3,6 +3,7 @@ package co.bstorm.aleksa.recipes.util;
 import java.util.HashSet;
 import java.util.Set;
 
+import co.bstorm.aleksa.recipes.constants.DbColumns;
 import co.bstorm.aleksa.recipes.pojo.TagCategory;
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -35,7 +36,6 @@ public class FilterUtils {
 
         boolean firstItemPassed = false;
 
-        // TODO extract column names
         for (Integer id: filterTagIds) {
             // Don't add .or() before adding the first item
             if (firstItemPassed)
@@ -43,7 +43,7 @@ public class FilterUtils {
             else
                 firstItemPassed = true;
 
-            categories.equalTo("tags.id", id);
+            categories.equalTo(DbColumns.TagCategory.TAGS + "." + DbColumns.Tag.ID, id);
         }
 
         RealmResults<TagCategory> tagCategories =  categories.findAll();
